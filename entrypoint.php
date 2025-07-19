@@ -289,11 +289,15 @@ function auth_tailscale() {
 }
 auth_tailscale();
 
+function rickroll_user() {
+    http_response_code(307);
+    set_header("Location", "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    exit(0); // dispara shutdown, que vai enviar o que precisa ser enviado
+}
+
 function rickroll_unlogged() {
     if (!TS_HAS_LOGIN) {
-        http_response_code(307);
-        set_header("Location", "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-        exit(0); // dispara shutdown, que vai enviar o que precisa ser enviado
+        rickroll_user();
     }
 }
 
