@@ -1,6 +1,5 @@
-# phpelo
-
 ![logo](./logo.png)
+# phpelo
 
 Workarounds at the speed of sound.
 
