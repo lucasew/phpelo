@@ -6,43 +6,43 @@
 }:
 
 let
-  cfg = config.services.phputils;
+  cfg = config.services.phpelo;
 in
 
 {
   options = {
-    services.phputils = {
-      enable = (lib.mkEnableOption "php teste") // {
+    services.phpelo = {
+      enable = (lib.mkEnableOption "phpelo") // {
         default = true;
       };
       php = lib.mkPackageOption pkgs "php" { };
       scriptDir = lib.mkOption {
         description = "Where are the scripts";
-        default = "/etc/phputils";
+        default = "/etc/phpelo";
         type = lib.types.str;
       };
       socket = lib.mkOption {
-        description = "Where to listen socket for php test";
-        default = "/run/php-test.sock";
+        description = "Where to listen socket for phpelo";
+        default = "/run/phpelo.sock";
       };
     };
   };
   config = lib.mkIf cfg.enable {
 
-    systemd.sockets.phputils = {
+    systemd.sockets.phpelo = {
       restartTriggers = [ cfg.socket ];
       socketConfig = {
         ListenStream = cfg.socket;
         Accept = true;
       };
-      partOf = [ "phputils.service" ];
+      partOf = [ "phpelo.service" ];
       wantedBy = [
         "sockets.target"
         "multi-user.target"
       ];
     };
 
-    systemd.slices.phputils.sliceConfig = {
+    systemd.slices.phpelo.sliceConfig = {
       MemoryMax = "64M";
       MemoryHigh = "16M";
       CPUQuota = "10%";
@@ -50,11 +50,11 @@ in
       ManagedOOMPressure = "kill";
     };
 
-    systemd.services."phputils@" = {
+    systemd.services."phpelo@" = {
       stopIfChanged = true;
       after = [ "network.target" ];
       serviceConfig = {
-        Slice = "phputils.slice";
+        Slice = "phpelo.slice";
         StandardInput = "socket";
         StandardOutput = "socket";
         StandardError = "journal";
@@ -80,13 +80,5 @@ in
     };
 
     systemd.tmpfiles.rules = [ "d ${cfg.scriptDir} 0700 root root - -" ];
-
-    services.ts-proxy.hosts."phputils-${config.networking.hostName}" = {
-      enableTLS = true;
-      enableFunnel = true;
-      network = "unix";
-      proxies = [ "phputils.socket" ];
-      address = cfg.socket;
-    };
   };
 }
