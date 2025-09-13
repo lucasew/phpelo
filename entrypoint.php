@@ -339,6 +339,7 @@ register_shutdown_function('shutdown');
 // ==================================== ROTAS ===============================
 
 $SCRIPT_DIR = getenv("SCRIPT_DIR");
+error_log("Script dir: $SCRIPT_DIR");
 chdir($SCRIPT_DIR);
 
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
@@ -346,7 +347,7 @@ $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
 if (!file_exists($ROUTES_SCRIPT)) {
     http_response_code(404);
 } else {
-    include "$SCRIPT_DIR/routes.php";
+    include "$ROUTES_SCRIPT";
 }
 
 ?>

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+SCRIPT_DIR="$(realpath "$1")"; shift
+
+systemd-socket-activate \
+  --listen=127.0.0.1:5000 \
+  -E "SCRIPT_DIR=$SCRIPT_DIR" \
+  --accept \
+  --inetd \
+  php \
+    -d display_errors=\"stderr\" \
+    -d disable_functions=\"header\" \
+    ./entrypoint.php 
