@@ -339,7 +339,7 @@ register_shutdown_function('shutdown');
 // ==================================== ROTAS ===============================
 
 $SCRIPT_DIR = getenv("SCRIPT_DIR");
-error_log("Script dir: $SCRIPT_DIR");
+// error_log("Script dir: $SCRIPT_DIR");
 chdir($SCRIPT_DIR);
 
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
