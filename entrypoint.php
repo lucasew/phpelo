@@ -72,7 +72,7 @@ function mime_from_buffer($buffer) {
 
 // ==================================== Utilitários para roteamento =============
 $INPUT_DATA = array_merge_recursive($_GET, $_POST);
-$ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"];
+$ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
 $IS_ROUTED = false;
 
 function mark_routed() {
