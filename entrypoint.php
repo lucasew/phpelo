@@ -182,11 +182,11 @@ function content_scope_pop_markdown() {
         $json = json_encode($link_found);
         content_scope_push();
         echo '<img alt="';
-        echo $label;
+        echo htmlspecialchars($label, ENT_QUOTES);
         echo '" title="';
-        echo $label;
+        echo htmlspecialchars($label, ENT_QUOTES);
         echo '" src="';
-        echo $link;
+        echo htmlspecialchars($link, ENT_QUOTES);
         echo '">';
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
@@ -204,9 +204,9 @@ function content_scope_pop_markdown() {
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
             echo '<a href="';
-            echo $link;
+            echo htmlspecialchars($link, ENT_QUOTES);
             echo '">';
-            echo $label;
+            echo htmlspecialchars($label, ENT_QUOTES);
             echo "</a>";
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
@@ -214,9 +214,9 @@ function content_scope_pop_markdown() {
             $search_term = $link;
             content_scope_push();
             echo '<a href="';
-            echo $link;
+            echo htmlspecialchars($link, ENT_QUOTES);
             echo '">';
-            echo $link;
+            echo htmlspecialchars($link, ENT_QUOTES);
             echo '</a>';
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
