@@ -181,13 +181,7 @@ function content_scope_pop_markdown() {
         $link = $link_found[2];
         $json = json_encode($link_found);
         content_scope_push();
-        echo '<img alt="';
-        echo htmlspecialchars($label, ENT_QUOTES);
-        echo '" title="';
-        echo htmlspecialchars($label, ENT_QUOTES);
-        echo '" src="';
-        echo htmlspecialchars($link, ENT_QUOTES);
-        echo '">';
+        printf('<img alt="%s" title="%s" src="%s">', htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
@@ -203,21 +197,13 @@ function content_scope_pop_markdown() {
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
-            echo '<a href="';
-            echo htmlspecialchars($link, ENT_QUOTES);
-            echo '">';
-            echo htmlspecialchars($label, ENT_QUOTES);
-            echo "</a>";
+            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         } else {
             $search_term = $link;
             content_scope_push();
-            echo '<a href="';
-            echo htmlspecialchars($link, ENT_QUOTES);
-            echo '">';
-            echo htmlspecialchars($link, ENT_QUOTES);
-            echo '</a>';
+            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         }
