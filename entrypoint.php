@@ -29,7 +29,7 @@ while (true) {
     // fixes security issue where an attacker could
     // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
     // error_log("header: $_header_name");
-    if (strcasecmp($_header_name, "Tailscale-User-Login") == 0) {
+    if ($_header_name == "Tailscale-User-Login") {
         define("TS_LOGIN", $_header_value);
     }
 
