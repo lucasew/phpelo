@@ -7,11 +7,16 @@
 
 let
   cfg = config.services.phpelo;
-  phpelo-scripts = pkgs.runCommand "phpelo-scripts" { } ''
-    mkdir -p $out
-    cp ${./entrypoint.php} $out/entrypoint.php
-    cp ${./markdown.php} $out/markdown.php
-  '';
+  phpelo-scripts = pkgs.stdenv.mkDerivation {
+    pname = "phpelo-scripts";
+    src = lib.cleanSource ./.;
+    nativeBuildInputs = [ pkgs.findutils ];
+    installPhase = ''
+      mkdir -p $out
+      find . -maxdepth 1 -name '*.php' -exec cp -t $out {} +
+    '';
+    dontBuild = true;
+  };
 in
 
 {
