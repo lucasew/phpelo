@@ -7,6 +7,11 @@
 
 let
   cfg = config.services.phpelo;
+  phpelo-scripts = pkgs.runCommand "phpelo-scripts" { } ''
+    mkdir -p $out
+    cp ${./entrypoint.php} $out/entrypoint.php
+    cp ${./markdown.php} $out/markdown.php
+  '';
 in
 
 {
@@ -73,12 +78,9 @@ in
       };
 
       script = ''
-        cd "${cfg.scriptDir}"
-        export SCRIPT_DIR="${cfg.scriptDir}"
-        exec ${lib.getExe cfg.php}  -d display_errors="stderr" -d disable_functions="header" ${./entrypoint.php}
+        export SCRIPT_DIR="${phpelo-scripts}"
+        exec ${lib.getExe cfg.php}  -d display_errors="stderr" -d disable_functions="header" ${phpelo-scripts}/entrypoint.php
       '';
     };
-
-    systemd.tmpfiles.rules = [ "d ${cfg.scriptDir} 0700 root root - -" ];
   };
 }
