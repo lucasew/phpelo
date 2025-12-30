@@ -88,7 +88,18 @@ function mark_routed() {
  */
 function execphp(string $script) {
     global $INPUT_DATA, $ROUTE;
-    require $script;
+    $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
+
+    // 🛡️ Sentinel: Prevent LFI / Path Traversal.
+    // Ensure the requested script is within the allowed directory.
+    $real_script_path = realpath($script);
+    if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
+        error_log("Path Traversal attempt blocked: " . $script);
+        http_response_code(404);
+        return;
+    }
+
+    require $real_script_path;
 }
 
 /**
