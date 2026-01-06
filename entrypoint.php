@@ -174,6 +174,11 @@ function content_scope_pop_markdown() {
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
+    // 🛡️ Sentinel: Prevent Stored XSS.
+    // Escape the entire input first, then selectively apply markdown rules.
+    // This ensures no raw HTML from the user can ever be rendered.
+    $lines = htmlspecialchars($lines, ENT_QUOTES);
+
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
 
@@ -239,9 +244,11 @@ function content_scope_pop_markdown() {
             $line = substr($line, $heading_level);
             $line = trim($line);
         } else {
-            preg_match('/^>*/', $line, $blockquote_level);
-            $blockquote_level = strlen($blockquote_level[0]);
+            // 🛡️ Sentinel: Match escaped blockquote characters since input is sanitized.
+            preg_match('/^(?:&gt;)*/', $line, $blockquote_match);
+            $blockquote_level = strlen($blockquote_match[0]);
             $line = substr($line, $blockquote_level);
+            $blockquote_level = $blockquote_level / 4;
             $line = trim($line);
             for ($i = 0; $i < $blockquote_level; $i++) {
                 $line = "<blockquote>$line</blockquote>";
