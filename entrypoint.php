@@ -28,7 +28,6 @@ while (true) {
 
     // fixes security issue where an attacker could
     // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
-    // error_log("header: $_header_name");
     if ($_header_name == "Tailscale-User-Login") {
         define("TS_LOGIN", $_header_value);
     }
@@ -202,7 +201,6 @@ function content_scope_pop_markdown() {
         }
         $link = substr($link_found[0][0], 1, -1);
         $offset = $link_found[0][1] + 1;
-        error_log("match: link='$link' offset='$offset'");
         if (substr($lines, $offset - 2, 2) == "](") {
             $exploded_label = explode("[", substr($lines, 0, $offset - 2));
             $label = $exploded_label[array_key_last($exploded_label)];
@@ -332,7 +330,6 @@ register_shutdown_function('shutdown');
 // ==================================== ROTAS ===============================
 
 $SCRIPT_DIR = getenv("SCRIPT_DIR");
-// error_log("Script dir: $SCRIPT_DIR");
 chdir($SCRIPT_DIR);
 
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
