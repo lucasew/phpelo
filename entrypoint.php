@@ -132,8 +132,10 @@ function exact_with_route_param(string $selected_route, string $handler_script) 
     global $INPUT_DATA, $ROUTE;
     $preprocess = function (string $raw_route) {
         $splitted = preg_split("/\//", $raw_route);
+        // 🧹 Janitor: The original code called an undefined function `is_empty_string`.
+        // Replaced with the correct inline check to filter out empty path segments.
         $splitted = array_filter($splitted, function($v, $k) {
-            return !is_empty_string($v);
+            return $v !== '';
         }, ARRAY_FILTER_USE_BOTH);
         return array_values($splitted);
     };
