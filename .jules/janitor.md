@@ -1,0 +1,5 @@
+## 2024-05-20 - Replace Magic Strings with Named Constants in Tailscale Auth
+**Issue:** The `auth_tailscale` function used hardcoded "magic strings" like "tagged-devices", "", and "anonymous" for checking special Tailscale login states. These strings lacked context and made the code harder to understand and maintain.
+**Root Cause:** The values were likely implemented as simple string literals during initial development without considering future readability or the need for a centralized definition of special authentication-related values.
+**Solution:** I introduced named constants (`TS_LOGIN_TAGGED_DEVICES`, `TS_LOGIN_EMPTY`, `TS_LOGIN_ANONYMOUS`, `TS_NAME_ANONYMOUS`, `TS_PROFILE_PIC_ANONYMOUS`) to replace the magic strings. This makes the logic in `auth_tailscale` self-documenting and ensures that these special values are defined in a single, clear location.
+**Pattern:** When encountering hardcoded, special-case strings or numbers that affect control flow, refactor them into named constants. This improves code clarity, reduces the risk of typos, and makes the codebase easier to maintain.
