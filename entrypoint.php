@@ -265,10 +265,18 @@ function auth_tailscale() {
     $profile_pic = "";
     $has_login = true;
     if (array_key_exists("HTTP_TAILSCALE_USER_NAME", $_SERVER)) {
-        $name = $_SERVER["HTTP_TAILSCALE_USER_NAME"];
+        // 🛡️ Sentinel: Sanitize user name to prevent XSS.
+        $name = htmlspecialchars($_SERVER["HTTP_TAILSCALE_USER_NAME"], ENT_QUOTES);
     }
     if (array_key_exists("HTTP_TAILSCALE_USER_PROFILE_PIC", $_SERVER)) {
-        $profile_pic = $_SERVER["HTTP_TAILSCALE_USER_PROFILE_PIC"];
+        $profile_pic_raw = $_SERVER["HTTP_TAILSCALE_USER_PROFILE_PIC"];
+        // 🛡️ Sentinel: Validate URL scheme and sanitize to prevent XSS.
+        if (str_starts_with($profile_pic_raw, "http://") || str_starts_with($profile_pic_raw, "https://")) {
+            $profile_pic = htmlspecialchars($profile_pic_raw, ENT_QUOTES);
+        } else {
+            // Invalid or malicious scheme, discard it.
+            $profile_pic = "";
+        }
     }
     if (!defined("TS_LOGIN") || TS_LOGIN == "tagged-devices" || TS_LOGIN == "") {
         $login = "anonymous";
