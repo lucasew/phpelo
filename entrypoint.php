@@ -20,7 +20,10 @@ $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 $_HEADERS = array();
 function header(string $header) {
     global $_HEADERS;
-    array_push($_HEADERS, $header);
+    // 🛡️ Sentinel: Prevent HTTP Header Injection / Response Splitting.
+    // Remove any CR/LF characters to stop attackers from injecting malicious headers.
+    $safe_header = str_replace(["\r", "\n"], '', $header);
+    array_push($_HEADERS, $safe_header);
 }
 
 while (true) {
