@@ -183,6 +183,9 @@ function content_scope_pop_markdown() {
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
+    // 🛡️ Sentinel: Escape HTML to prevent XSS.
+    $lines = htmlspecialchars($lines, ENT_QUOTES);
+
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
 
@@ -201,7 +204,9 @@ function content_scope_pop_markdown() {
         $link = $link_found[2];
         $json = json_encode($link_found);
         content_scope_push();
-        printf('<img alt="%s" title="%s" src="%s">', htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+        // 🛡️ Sentinel: Input is already escaped at the start of the function.
+        // We do not escape here to avoid double-escaping.
+        printf('<img alt="%s" title="%s" src="%s">', $label, $label, $link);
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
@@ -216,13 +221,15 @@ function content_scope_pop_markdown() {
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
+            // 🛡️ Sentinel: Input is already escaped.
+            printf('<a href="%s">%s</a>', $link, $label);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         } else {
             $search_term = $link;
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+            // 🛡️ Sentinel: Input is already escaped.
+            printf('<a href="%s">%s</a>', $link, $link);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         }

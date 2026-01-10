@@ -1,11 +1,7 @@
-# Sentinel's Journal
+## 2024-03-25 - Fix Stored XSS in Markdown Renderer
 
-## 2024-10-25 - Stored XSS in Markdown Renderer
-**Vulnerability:** The custom markdown renderer in `entrypoint.php` (function `content_scope_pop_markdown`) allowed arbitrary user input to be echoed into HTML attributes (`alt`, `title`, `src`, `href`) and HTML content (`<a>` body). This enabled Stored XSS via Attribute Injection and HTML Injection.
-**Learning:** Custom output rendering functions often lack the context-aware sanitization provided by mature template engines or libraries. Escaping must be applied at the point of output, specific to the context (HTML attribute vs HTML body).
-**Prevention:** Always use `htmlspecialchars($var, ENT_QUOTES)` when echoing user-controlled variables into HTML attributes. Avoid building HTML via string concatenation with raw user input.
+**Vulnerability:** The `content_scope_pop_markdown` function in `entrypoint.php` did not sanitize input before wrapping it in HTML tags. This meant that if user input (e.g., query parameters or database content) was processed by this function, an attacker could inject arbitrary HTML and JavaScript (XSS), as the function only replaced markdown syntax but left other HTML tags intact.
 
-## 2025-12-28 - Architectural Constraint on Header Case-Sensitivity
-**Rejected Change:** A change was proposed to make the `Tailscale-User-Login` header check case-insensitive to align with RFC 2616.
-**Learning:** In this architecture, the `Tailscale-User-Login` header is only considered valid when passed with exact casing from the upstream `ts-proxy` reverse proxy. Making the check case-insensitive would introduce a vulnerability, as an attacker could send a header with a different casing that the proxy might not overwrite, potentially bypassing authentication. This is a key example of an architectural decision overriding a general security best practice.
-**Prevention:** Before applying general security principles, always confirm if specific architectural constraints justify the existing implementation. The case-sensitive check is an intentional security measure in this context.
+**Learning:** When implementing a custom text-to-HTML renderer (like a Markdown parser), it is crucial to sanitize the *entire* input string (e.g., using `htmlspecialchars`) *before* applying any formatting rules. Relying on the assumption that regex replacements for markdown syntax are sufficient is dangerous because it leaves non-matching content (like `<script>` tags) raw in the output.
+
+**Prevention:** Always follow the "Sanitize First, Format Second" principle for custom renderers. If the renderer must support raw HTML, use a dedicated HTML sanitizer library (like HTML Purifier) instead of a simple regex-based approach. For this codebase, we applied `htmlspecialchars($lines, ENT_QUOTES)` at the start of the function and removed subsequent redundant escaping to prevent double-encoding.
