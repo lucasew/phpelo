@@ -7,5 +7,10 @@
 
 ## 2025-12-28 - Architectural Constraint on Header Case-Sensitivity
 **Rejected Change:** A change was proposed to make the `Tailscale-User-Login` header check case-insensitive to align with RFC 2616.
-**Learning:** In this architecture, the `Tailscale-User-Login` header is only considered valid when passed with exact casing from the upstream `ts-proxy` reverse proxy. Making the check case-insensitive would introduce a vulnerability, as an attacker could send a header with a different casing that the proxy might not overwrite, potentially bypassing authentication. This is a key example of an architectural decision overriding a general security best practice.
+**Learning:** In this architecture, the `Tailscale-User-Login` header is only considered valid when passed with exact casing from the upstream `ts-proxy` reverse proxy. Making the check case-insensitive would introduce a vulnerability, as an attacker could send a header with a different casing that the proxy might not overwrite, in order to bypass authentication. This is a key example of an architectural decision overriding a general security best practice.
 **Prevention:** Before applying general security principles, always confirm if specific architectural constraints justify the existing implementation. The case-sensitive check is an intentional security measure in this context.
+
+## 2026-01-14 - Mitigate XSS with Content Security Policy
+**Vulnerability:** The `content_scope_pop_markdown` function has a history of incomplete XSS fixes. A full, secure refactor of the custom parser is complex and would exceed the scope of a small change. The risk of unpatched XSS vulnerabilities remains.
+**Learning:** When a core component is inherently insecure and a complete rewrite is not feasible, a defense-in-depth approach can provide effective mitigation. In this case, adding a strict Content Security Policy (CSP) header neutralizes the XSS risk by instructing the browser to block all script execution, regardless of whether a vulnerability is successfully exploited.
+**Prevention:** For any application that renders user-generated content, a Content Security Policy should be implemented as a baseline security measure. This ensures that even if an XSS vulnerability is introduced, its impact is significantly reduced or eliminated entirely.
