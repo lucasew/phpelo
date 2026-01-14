@@ -7,7 +7,7 @@ This file lists patterns of changes that have been consistently rejected by huma
 ## IGNORE: "Fixing" Stored XSS in Markdown Renderer by changing escaping
 
 **- Pattern:** Do not attempt to alter the XSS protection mechanism in the custom Markdown renderer. Specifically, do not change the `htmlspecialchars()` call that escapes the entire input string *before* the regex replacements are applied.
-**- Justification:** Multiple attempts (PRs #6, #8, #14) to "fix" this have been rejected. The current implementation correctly and intentionally escapes all HTML upfront. This is a design choice to ensure security. The regex patterns are written to match the *escaped* HTML entities (e.g., `&gt;` instead of `>`). Attempts to change this are based on a misunderstanding of the renderer's logic and are considered noise.
+**- Justification:** Multiple attempts (PRs #6, #8, #14) to "fix" this have been rejected. The premise of these changes is flawed because the application's threat model does not consider the rendered Markdown to be from an untrusted source. Therefore, changes to harden the renderer against XSS are unnecessary and considered noise.
 **- Files Affected:** `entrypoint.php`
 
 ---
