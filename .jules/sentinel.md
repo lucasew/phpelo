@@ -14,3 +14,8 @@
 **Vulnerability:** The `content_scope_pop_markdown` function has a history of incomplete XSS fixes. A full, secure refactor of the custom parser is complex and would exceed the scope of a small change. The risk of unpatched XSS vulnerabilities remains.
 **Learning:** When a core component is inherently insecure and a complete rewrite is not feasible, a defense-in-depth approach can provide effective mitigation. In this case, adding a strict Content Security Policy (CSP) header neutralizes the XSS risk by instructing the browser to block all script execution, regardless of whether a vulnerability is successfully exploited.
 **Prevention:** For any application that renders user-generated content, a Content Security Policy should be implemented as a baseline security measure. This ensures that even if an XSS vulnerability is introduced, its impact is significantly reduced or eliminated entirely.
+
+## 2026-10-25 - Custom Header Function Vulnerability
+**Vulnerability:** The custom `header()` and `set_header()` functions in `entrypoint.php` blindly echoed input to STDOUT without checking for CRLF characters. This allowed HTTP Response Splitting (CRLF Injection) if an attacker could control header content.
+**Learning:** Re-implementing core language features (like `header()`) often bypasses built-in security protections that have been refined over years. The native PHP `header()` function has built-in CRLF protection, but the custom one did not.
+**Prevention:** When replacing core functionality, always audit the original implementation's security guarantees and replicate them. For HTTP headers, strictly validate that keys and values do not contain `\r` or `\n`.
