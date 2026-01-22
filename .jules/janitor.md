@@ -9,3 +9,9 @@
 **Root Cause:** The HTTP status code was likely hardcoded as a quick implementation, without considering the long-term readability and maintainability benefits of using a named constant.
 **Solution:** I introduced a named constant, `HTTP_STATUS_TEMPORARY_REDIRECT`, and replaced the magic number `307` in the `rickroll_user` function. This change makes the code more self-documenting and aligns with best practices for writing clean, maintainable code.
 **Pattern:** Replace magic numbers, especially those representing status codes, flags, or other non-obvious values, with named constants to improve code clarity and maintainability.
+
+## 2026-01-22 - Replace Magic Numbers/Strings with Named Constants for HTTP Status and Content Types
+**Issue:** `entrypoint.php` contained hardcoded magic numbers (200, 404) and magic strings ("auto", "text/plain; charset=utf-8", "text/html") for HTTP status codes and Content-Type headers, reducing readability and scattering configuration values.
+**Root Cause:** Initial development likely prioritized speed, leaving a TODO to address standardizing these values later.
+**Solution:** Defined constants `HTTP_STATUS_OK`, `HTTP_STATUS_NOT_FOUND`, `HTTP_STATUS_INTERNAL_SERVER_ERROR` and content type constants, replacing the literal values throughout `entrypoint.php` and resolving the existing TODO.
+**Pattern:** Centralize standard protocol values (like HTTP status codes and MIME types) into named constants to improve code clarity, facilitate reuse, and reduce the risk of inconsistencies.

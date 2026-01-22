@@ -8,8 +8,14 @@ const TS_NAME_ANONYMOUS = "Anônimo";
 const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,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
 const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
-// TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
+const HTTP_STATUS_OK = 200;
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
+const HTTP_STATUS_NOT_FOUND = 404;
+const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
+
+const CONTENT_TYPE_AUTO = "auto";
+const CONTENT_TYPE_TEXT_PLAIN = "text/plain; charset=utf-8";
+const CONTENT_TYPE_TEXT_HTML = "text/html";
 
 // ==================================== Ingestão da request que vem do stdin =============
 
@@ -65,14 +71,14 @@ function set_contenttype(string $content_type) {
     set_header("Content-Type", $content_type);
 }
 
-set_contenttype("auto"); // default
+set_contenttype(CONTENT_TYPE_AUTO); // default
 
 function content_text() {
-    set_contenttype("text/plain; charset=utf-8");
+    set_contenttype(CONTENT_TYPE_TEXT_PLAIN);
 }
 
 function content_html() {
-    set_contenttype("text/html");
+    set_contenttype(CONTENT_TYPE_TEXT_HTML);
 }
 
 function mime_from_buffer($buffer) {
@@ -106,7 +112,7 @@ function execphp(string $script) {
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
         error_log("Path Traversal attempt blocked: " . $script);
-        http_response_code(404);
+        http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }
 
@@ -316,7 +322,7 @@ function shutdown() {
     $data = content_scope_pop();
 
     if (!http_response_code()) {
-        http_response_code(200); // default response code
+        http_response_code(HTTP_STATUS_OK); // default response code
     }
     echo "HTTP/1.0 ";
     echo http_response_code();
@@ -326,7 +332,7 @@ function shutdown() {
         echo "$header\r\n";
     }
 
-    if ($_HEADERS_KV['Content-Type'] == 'auto') {
+    if ($_HEADERS_KV['Content-Type'] == CONTENT_TYPE_AUTO) {
         set_contenttype(mime_from_buffer($data));
     }
 
@@ -349,7 +355,7 @@ chdir($SCRIPT_DIR);
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
 
 if (!file_exists($ROUTES_SCRIPT)) {
-    http_response_code(404);
+    http_response_code(HTTP_STATUS_NOT_FOUND);
 } else {
     include "$ROUTES_SCRIPT";
 }
