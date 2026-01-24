@@ -23,6 +23,10 @@ $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
 $_HEADERS = array();
 function header(string $header) {
+    if (strpbrk($header, "\r\n") !== false) {
+        error_log("Security Warning: Header injection attempt detected in header(): $header");
+        return;
+    }
     global $_HEADERS;
     array_push($_HEADERS, $header);
 }
@@ -50,15 +54,19 @@ while (true) {
 }
 
 // ==================================== Primitiva de header pra retorno =============
-set_header("Server", "phpelo");
-set_header("Connection", "close");
-set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
-
 $_HEADERS_KV = array();
 function set_header(string $key, string $value) {
+    if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
+        error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
+        return;
+    }
     global $_HEADERS_KV;
     $_HEADERS_KV[$key] = $value;
 }
+
+set_header("Server", "phpelo");
+set_header("Connection", "close");
+set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
 
 // ==================================== Utilitários para content-type =============
 function set_contenttype(string $content_type) {
