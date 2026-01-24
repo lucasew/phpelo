@@ -14,3 +14,8 @@
 **Vulnerability:** The `content_scope_pop_markdown` function has a history of incomplete XSS fixes. A full, secure refactor of the custom parser is complex and would exceed the scope of a small change. The risk of unpatched XSS vulnerabilities remains.
 **Learning:** When a core component is inherently insecure and a complete rewrite is not feasible, a defense-in-depth approach can provide effective mitigation. In this case, adding a strict Content Security Policy (CSP) header neutralizes the XSS risk by instructing the browser to block all script execution, regardless of whether a vulnerability is successfully exploited.
 **Prevention:** For any application that renders user-generated content, a Content Security Policy should be implemented as a baseline security measure. This ensures that even if an XSS vulnerability is introduced, its impact is significantly reduced or eliminated entirely.
+
+## 2026-01-24 - Header Injection and Lost Security Headers
+**Vulnerability:** The custom `header()` and `set_header()` functions lacked validation for CRLF characters, enabling HTTP Response Splitting. Additionally, improper initialization order of `$_HEADERS_KV` caused default security headers (CSP, Server) to be silently overwritten and lost.
+**Learning:** Custom implementations of core HTTP functionality require rigorous validation that standard libraries often provide implicitly. Also, execution order in procedural scripts can lead to silent failures of security controls (like CSP) if initialization logic resets state after configuration.
+**Prevention:** Always validate header inputs for control characters. Ensure global state initialization happens before any function calls that modify that state.
