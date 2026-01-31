@@ -23,6 +23,10 @@ $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
 $_HEADERS = array();
 function header(string $header) {
+    if (strpbrk($header, "\r\n") !== false) {
+        error_log("Security Warning: CRLF Injection attempt detected in header(): " . addcslashes($header, "\r\n"));
+        return;
+    }
     global $_HEADERS;
     array_push($_HEADERS, $header);
 }
@@ -56,6 +60,10 @@ set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' http
 
 $_HEADERS_KV = array();
 function set_header(string $key, string $value) {
+    if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
+        error_log("Security Warning: CRLF Injection attempt detected in set_header(): " . addcslashes("$key: $value", "\r\n"));
+        return;
+    }
     global $_HEADERS_KV;
     $_HEADERS_KV[$key] = $value;
 }
