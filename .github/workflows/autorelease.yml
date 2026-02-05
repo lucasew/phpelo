@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
+      - run: php -v && composer -v
       - run: mise run install
       - run: mise run codegen
       - name: Create PR if differences exist
