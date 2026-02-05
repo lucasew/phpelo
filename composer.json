@@ -1,0 +1,9 @@
+{
+    "name": "google-labs/phpelo",
+    "description": "The fastest way to make a simple HTTP service using PHP!",
+    "type": "project",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "license": "MIT"
+}

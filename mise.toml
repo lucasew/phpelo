@@ -1,0 +1,34 @@
+[tools]
+# No tools configured, using system tools.
+
+[tasks.install]
+description = "Install dependencies"
+run = "composer install"
+
+[tasks."lint:phpcs"]
+description = "Lint PHP code using PHP_CodeSniffer"
+run = "./vendor/bin/phpcs"
+
+[tasks.lint]
+description = "Run all linters"
+depends = ["lint:*"]
+
+[tasks."fmt:phpcbf"]
+description = "Format PHP code using PHP_CodeSniffer"
+run = "./vendor/bin/phpcbf"
+
+[tasks.fmt]
+description = "Run all formatters"
+depends = ["fmt:*"]
+
+[tasks.test]
+description = "Run tests"
+run = "echo 'No tests configured'"
+
+[tasks.codegen]
+description = "Update generated code"
+run = "echo 'No codegen configured'"
+
+[tasks.ci]
+description = "Run CI pipeline"
+depends = ["lint", "test"]

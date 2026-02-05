@@ -1,0 +1,51 @@
+name: autorelease
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autorelease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      - run: mise run install
+      - run: mise run codegen
+      - name: Create PR if differences exist
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+
+            BRANCH_NAME="chore/codegen-$(date +%s)"
+            git checkout -b "$BRANCH_NAME"
+
+            git add .
+            git commit -m "chore: update generated code"
+            git push origin "$BRANCH_NAME"
+
+            gh pr create \
+              --title "chore: update generated code" \
+              --body "Automated PR to update generated code." \
+              --base "${{ github.ref_name }}" \
+              --head "$BRANCH_NAME"
+          fi
+      - run: mise run ci
+      - if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        name: Release
+        run: |
+          # This step is conditional based on the project type.
+          # For now, we assume a standard project.
+          # If semantic-release or similar is used, add it here.
+          echo "Release step"
