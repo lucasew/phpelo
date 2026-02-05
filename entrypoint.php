@@ -536,4 +536,3 @@ if (!file_exists($ROUTES_SCRIPT)) {
     include "$ROUTES_SCRIPT";
 }
 
-?>
