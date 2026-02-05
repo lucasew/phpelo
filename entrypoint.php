@@ -450,13 +450,27 @@ function auth_tailscale()
 }
 auth_tailscale();
 
-function rickroll_user() {
+/**
+ * Redirects the user to a "Rick Roll" video.
+ *
+ * Used as a playful penalty for unauthorized access or invalid states.
+ * Terminates execution immediately, triggering the shutdown handler.
+ */
+function rickroll_user()
+{
     http_response_code(HTTP_STATUS_TEMPORARY_REDIRECT);
     set_header("Location", RICKROLL_URL);
     exit(0); // dispara shutdown, que vai enviar o que precisa ser enviado
 }
 
-function rickroll_unlogged() {
+/**
+ * Checks if the user is logged in via Tailscale.
+ *
+ * If the user is not authenticated (anonymous), they are redirected
+ * to the Rick Roll URL.
+ */
+function rickroll_unlogged()
+{
     if (!TS_HAS_LOGIN) {
         rickroll_user();
     }
