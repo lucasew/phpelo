@@ -11,21 +11,26 @@ const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
 
-class Response {
+class Response
+{
     private static $instance = null;
     private $headers = [];
     private $headers_kv = [];
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             self::$instance = new Response();
         }
         return self::$instance;
     }
 
-    public function addHeader(string $header) {
+    public function addHeader(string $header)
+    {
         if (strpbrk($header, "\r\n") !== false) {
             error_log("Security Warning: Header injection attempt detected in header(): $header");
             return;
@@ -33,7 +38,8 @@ class Response {
         $this->headers[] = $header;
     }
 
-    public function setHeader(string $key, string $value) {
+    public function setHeader(string $key, string $value)
+    {
         if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
             error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
             return;
@@ -41,11 +47,13 @@ class Response {
         $this->headers_kv[$key] = $value;
     }
 
-    public function getHeader(string $key) {
+    public function getHeader(string $key)
+    {
         return $this->headers_kv[$key] ?? null;
     }
 
-    public function send(string $body) {
+    public function send(string $body)
+    {
         if (!http_response_code()) {
             http_response_code(200); // default response code
         }
