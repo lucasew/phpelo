@@ -1,5 +1,6 @@
 [tools]
-# No tools configured, using system tools.
+# PHP and Composer are provided by the system.
+# Mise support requires plugins not currently configured.
 
 [tasks.install]
 description = "Install dependencies"

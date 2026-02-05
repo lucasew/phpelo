@@ -29,18 +29,18 @@ jobs:
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
 
-            BRANCH_NAME="chore/codegen-$(date +%s)"
+            BRANCH_NAME="chore/codegen"
             git checkout -b "$BRANCH_NAME"
 
             git add .
             git commit -m "chore: update generated code"
-            git push origin "$BRANCH_NAME"
+            git push origin "$BRANCH_NAME" --force
 
             gh pr create \
               --title "chore: update generated code" \
               --body "Automated PR to update generated code." \
               --base "${{ github.ref_name }}" \
-              --head "$BRANCH_NAME"
+              --head "$BRANCH_NAME" || echo "PR already exists, updated branch."
           fi
       - run: mise run ci
       - if: github.event_name == 'workflow_dispatch'
