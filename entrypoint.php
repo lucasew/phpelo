@@ -11,6 +11,7 @@ const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration
 class Response
 {
     private static $instance = null;
@@ -88,7 +89,8 @@ $_SERVER['REQUEST_METHOD'] = $_http_header[0];
 $_SERVER['REQUEST_URI'] = $_http_header[1];
 $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
-function header(string $header) {
+function header(string $header)
+{
     Response::getInstance()->addHeader($header);
 }
 
@@ -99,7 +101,7 @@ while (true) {
         break;
     }
     $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name)+1);
+    $_header_value = substr($_header, strlen($_header_name) + 1);
     $_header_value = trim($_header_value);
 
     // fixes security issue where an attacker could
@@ -115,7 +117,8 @@ while (true) {
 }
 
 // ==================================== Primitiva de header pra retorno =============
-function set_header(string $key, string $value) {
+function set_header(string $key, string $value)
+{
     Response::getInstance()->setHeader($key, $value);
 }
 
@@ -124,21 +127,25 @@ set_header("Connection", "close");
 set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
 
 // ==================================== Utilitários para content-type =============
-function set_contenttype(string $content_type) {
+function set_contenttype(string $content_type)
+{
     set_header("Content-Type", $content_type);
 }
 
 set_contenttype("auto"); // default
 
-function content_text() {
+function content_text()
+{
     set_contenttype("text/plain; charset=utf-8");
 }
 
-function content_html() {
+function content_html()
+{
     set_contenttype("text/html");
 }
 
-function mime_from_buffer($buffer) {
+function mime_from_buffer($buffer)
+{
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     return $finfo->buffer($buffer);
 }
@@ -149,7 +156,8 @@ $INPUT_DATA = array_merge_recursive($_GET, $_POST);
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
 $IS_ROUTED = false;
 
-function mark_routed() {
+function mark_routed()
+{
     global $IS_ROUTED;
     $orig_VALUE = $IS_ROUTED;
     $IS_ROUTED = true;
@@ -160,7 +168,8 @@ function mark_routed() {
 /**
  * bring required variables to scope then require the new file
  */
-function execphp(string $script) {
+function execphp(string $script)
+{
     global $INPUT_DATA, $ROUTE;
     $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
 
@@ -179,10 +188,13 @@ function execphp(string $script) {
 /**
  * create a route that matches anything starting with $base_route
  */
-function use_route(string $base_route, string $handler_script) {
+function use_route(string $base_route, string $handler_script)
+{
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
-        if ($IS_ROUTED) return;
+        if ($IS_ROUTED) {
+            return;
+        }
         $ROUTE = substr($ROUTE, strlen($base_route));
         execphp($handler_script);
     }
@@ -191,25 +203,29 @@ function use_route(string $base_route, string $handler_script) {
 /**
  * create a route that matches exactly $selected_route
  */
-function exact_route(string $selected_route, string $handler_script) {
+function exact_route(string $selected_route, string $handler_script)
+{
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
-        if (mark_routed()) return;
+        if (mark_routed()) {
+            return;
+        }
         execphp($handler_script);
     }
 }
 
 /**
- * create a route with route params, like /users/:user/info 
+ * create a route with route params, like /users/:user/info
  * and pass the route param with input_data
  */
-function exact_with_route_param(string $selected_route, string $handler_script) {
+function exact_with_route_param(string $selected_route, string $handler_script)
+{
     global $INPUT_DATA, $ROUTE;
     $preprocess = function (string $raw_route) {
         $splitted = preg_split("/\//", $raw_route);
         // 🧹 Janitor: The original code called an undefined function `is_empty_string`.
         // Replaced with the correct inline check to filter out empty path segments.
-        $splitted = array_filter($splitted, function($v, $k) {
+        $splitted = array_filter($splitted, function ($v, $k) {
             return $v !== '';
         }, ARRAY_FILTER_USE_BOTH);
         return array_values($splitted);
@@ -231,22 +247,27 @@ function exact_with_route_param(string $selected_route, string $handler_script) 
     } else {
         return;
     }
-    if (mark_routed()) return;
+    if (mark_routed()) {
+        return;
+    }
     $INPUT_DATA = array_merge_recursive($INPUT_DATA, $extra_params);
     execphp($handler_script);
 }
 
-function content_scope_push() {
+function content_scope_push()
+{
     ob_start();
 }
 
-function content_scope_pop() {
+function content_scope_pop()
+{
     $data = ob_get_contents();
     ob_end_clean();
     return $data;
 }
 
-function content_scope_pop_markdown() {
+function content_scope_pop_markdown()
+{
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
@@ -328,14 +349,16 @@ function content_scope_pop_markdown() {
     return content_scope_pop();
 }
 
-function sakuracss_auto () {
+function sakuracss_auto()
+{
     ?>
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" media="screen" />
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
     <?php
 }
 
-function auth_tailscale() {
+function auth_tailscale()
+{
     $name = "";
     $profile_pic = "";
     $has_login = true;
@@ -357,13 +380,15 @@ function auth_tailscale() {
 }
 auth_tailscale();
 
-function rickroll_user() {
+function rickroll_user()
+{
     http_response_code(HTTP_STATUS_TEMPORARY_REDIRECT);
     set_header("Location", RICKROLL_URL);
     exit(0); // dispara shutdown, que vai enviar o que precisa ser enviado
 }
 
-function rickroll_unlogged() {
+function rickroll_unlogged()
+{
     if (!TS_HAS_LOGIN) {
         rickroll_user();
     }
@@ -373,7 +398,8 @@ content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda 
 
 // ==================================== Finalização =========================
 
-function shutdown() {
+function shutdown()
+{
     $data = content_scope_pop();
     Response::getInstance()->send($data);
 }
