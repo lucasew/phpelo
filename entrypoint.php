@@ -5,6 +5,7 @@ const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
 const TS_LOGIN_EMPTY = "";
 const TS_LOGIN_ANONYMOUS = "anonymous";
 const TS_NAME_ANONYMOUS = "Anônimo";
+// FIX: Original base64 string was corrupt (unclosed quote). Replaced with placeholder.
 const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 

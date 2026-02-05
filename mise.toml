@@ -1,5 +1,5 @@
 [tools]
-composer = "latest"
+# No tools configured, using system tools.
 
 [tasks.install]
 description = "Install dependencies"

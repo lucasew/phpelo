@@ -6,6 +6,7 @@ on:
       - main
       - master
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      - run: php -v && composer -v
       - run: mise run install
       - run: mise run codegen
       - name: Create PR if differences exist
@@ -43,10 +43,9 @@ jobs:
               --head "$BRANCH_NAME"
           fi
       - run: mise run ci
-      - if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      - if: github.event_name == 'workflow_dispatch'
         name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # This step is conditional based on the project type.
-          # For now, we assume a standard project.
-          # If semantic-release or similar is used, add it here.
-          echo "Release step"
+          gh release create "v$(date +%Y.%m.%d-%H%M%S)" --generate-notes
