@@ -9,3 +9,9 @@
 **Root Cause:** The HTTP status code was likely hardcoded as a quick implementation, without considering the long-term readability and maintainability benefits of using a named constant.
 **Solution:** I introduced a named constant, `HTTP_STATUS_TEMPORARY_REDIRECT`, and replaced the magic number `307` in the `rickroll_user` function. This change makes the code more self-documenting and aligns with best practices for writing clean, maintainable code.
 **Pattern:** Replace magic numbers, especially those representing status codes, flags, or other non-obvious values, with named constants to improve code clarity and maintainability.
+
+## 2024-05-22 - Encapsulate Response Handling in Singleton Class
+**Issue:** The application relied on global arrays (`$_HEADERS`, `$_HEADERS_KV`) and scattered global functions (`header`, `set_header`, `shutdown`) to manage HTTP responses. This violated the Single Responsibility Principle and made the code harder to test and maintain.
+**Root Cause:** Procedural coding style common in simple PHP scripts, where global state is used for convenience.
+**Solution:** I implemented a `Response` class using the Singleton pattern to encapsulate the response state and logic. Global functions were refactored to delegate to this class, improving structure while maintaining backward compatibility.
+**Pattern:** Refactor global state management into encapsulated classes (Singleton/Service) to improve cohesion and reduce coupling.
