@@ -45,7 +45,8 @@ $_HEADERS = array();
  *
  * @param string $header The raw header string (e.g., "Location: /foo").
  */
-function header(string $header) {
+function header(string $header)
+{
     if (strpbrk($header, "\r\n") !== false) {
         error_log("Security Warning: Header injection attempt detected in header(): $header");
         return;
@@ -91,7 +92,8 @@ $_HEADERS_KV = array();
  * @param string $key The header name (e.g., "Content-Type").
  * @param string $value The header value (e.g., "application/json").
  */
-function set_header(string $key, string $value) {
+function set_header(string $key, string $value)
+{
     if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
         error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
         return;
@@ -110,19 +112,22 @@ set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' http
  * Helper to set the Content-Type header.
  * @param string $content_type The MIME type (e.g., "text/html").
  */
-function set_contenttype(string $content_type) {
+function set_contenttype(string $content_type)
+{
     set_header("Content-Type", $content_type);
 }
 
 set_contenttype("auto"); // default
 
 /** Sets Content-Type to text/plain; charset=utf-8 */
-function content_text() {
+function content_text()
+{
     set_contenttype("text/plain; charset=utf-8");
 }
 
 /** Sets Content-Type to text/html */
-function content_html() {
+function content_html()
+{
     set_contenttype("text/html");
 }
 
@@ -132,7 +137,8 @@ function content_html() {
  * @param string $buffer The content buffer.
  * @return string The detected MIME type.
  */
-function mime_from_buffer($buffer) {
+function mime_from_buffer($buffer)
+{
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     return $finfo->buffer($buffer);
 }
@@ -143,7 +149,16 @@ $INPUT_DATA = array_merge_recursive($_GET, $_POST);
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
 $IS_ROUTED = false;
 
-function mark_routed() {
+/**
+ * Marks the current request as routed.
+ *
+ * This function is used to prevent multiple routes from matching the same request.
+ * It updates the global $IS_ROUTED flag.
+ *
+ * @return bool The previous state of the routed flag (true if already routed).
+ */
+function mark_routed()
+{
     global $IS_ROUTED;
     $orig_VALUE = $IS_ROUTED;
     $IS_ROUTED = true;
@@ -163,7 +178,8 @@ function mark_routed() {
  *
  * @param string $script The path to the PHP script to execute.
  */
-function execphp(string $script) {
+function execphp(string $script)
+{
     global $INPUT_DATA, $ROUTE;
     $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
 
@@ -191,7 +207,8 @@ function execphp(string $script) {
  * @param string $base_route The URI prefix to match (e.g., "/api").
  * @param string $handler_script The script to handle the request.
  */
-function use_route(string $base_route, string $handler_script) {
+function use_route(string $base_route, string $handler_script)
+{
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
         if ($IS_ROUTED) return;
@@ -209,7 +226,8 @@ function use_route(string $base_route, string $handler_script) {
  * @param string $selected_route The exact URI to match (e.g., "/about").
  * @param string $handler_script The script to handle the request.
  */
-function exact_route(string $selected_route, string $handler_script) {
+function exact_route(string $selected_route, string $handler_script)
+{
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
         if (mark_routed()) return;
@@ -228,7 +246,8 @@ function exact_route(string $selected_route, string $handler_script) {
  * @param string $selected_route The route pattern (e.g., "/post/:id").
  * @param string $handler_script The script to handle the request.
  */
-function exact_with_route_param(string $selected_route, string $handler_script) {
+function exact_with_route_param(string $selected_route, string $handler_script)
+{
     global $INPUT_DATA, $ROUTE;
     $preprocess = function (string $raw_route) {
         $splitted = preg_split("/\//", $raw_route);
@@ -267,7 +286,8 @@ function exact_with_route_param(string $selected_route, string $handler_script) 
  * This allows capturing echo output into a variable, which is useful for
  * building the response body or processing template content.
  */
-function content_scope_push() {
+function content_scope_push()
+{
     ob_start();
 }
 
@@ -275,7 +295,8 @@ function content_scope_push() {
  * Ends the current output buffer and returns its contents.
  * @return string|false The buffered content.
  */
-function content_scope_pop() {
+function content_scope_pop()
+{
     $data = ob_get_contents();
     ob_end_clean();
     return $data;
@@ -299,7 +320,8 @@ function content_scope_pop() {
  *
  * @return string The rendered HTML.
  */
-function content_scope_pop_markdown() {
+function content_scope_pop_markdown()
+{
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
@@ -385,7 +407,8 @@ function content_scope_pop_markdown() {
  * Injects SakuraCSS for instant, classless styling.
  * Supports automatic dark mode detection.
  */
-function sakuracss_auto () {
+function sakuracss_auto()
+{
     ?>
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" media="screen" />
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
@@ -404,7 +427,8 @@ function sakuracss_auto () {
  * If no valid Tailscale headers are found, or if the login is invalid,
  * it defaults to an "Anonymous" profile.
  */
-function auth_tailscale() {
+function auth_tailscale()
+{
     $name = "";
     $profile_pic = "";
     $has_login = true;
@@ -453,7 +477,8 @@ content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda 
  * - Auto-detects Content-Type if set to "auto" using the response body.
  * - Outputs the buffered response body.
  */
-function shutdown() {
+function shutdown()
+{
     global $_HEADERS;
     global $_HEADERS_KV;
     $data = content_scope_pop();
