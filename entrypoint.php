@@ -5,7 +5,7 @@ const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
 const TS_LOGIN_EMPTY = "";
 const TS_LOGIN_ANONYMOUS = "anonymous";
 const TS_NAME_ANONYMOUS = "Anônimo";
-const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ8AAADSCAYAAABU+EV7AAAgAElEQVR4Xu19B5xdR33uub1tL9rVaptWbdUty7KMsYyEcWzZ2BgH24Hg0ByH8syjhJBAAgokpPAgBFMehOJASAgGHphim9hGIBthy7J6b6tVXW3f2/v7vjlnro6utu+9u3d35/i33tW958yZ+c/MN//+t2jqUhRQFFAUGAcFLON4Rj2iKKAooCigKfBQi0BRQFFgXBRQ4DEusqmHFAUUBRR4qDWgKKAoMC4KKPAYF9nUQ4oCigIKPNQaUBRQFBgXBRR4jIts6iFFAUUBBR5qDSgKKAqMiwIKPMZFNvWQooCigAIPtQYUBRQFxkUBBR7jIpt6SFFAUUCBh1oDigKKAuOigAKPcZFNPaQooCigwEOtAUUBRYFxUUCBx7jIph5SFFAUUOCh1oCigKLAuCigwGNcZFMPKQooCijwUGtAUUBRYFwUUOAxLrKphxQFFAUUeKg1oCigKDAuCijwGBfZ1EOKAooCCjzUGlAUUBQYFwUUeIyLbOohRQFFAQUeag1MCgUWL15c5bVaiyKa5uQL0+l03BFzhDa9flPfo48+Gp2UTqiX5JQCCjxySk7VmJkCBIy+vr66aCC6LhAK3GzV0qtSmlZp0SwOm2YLaXbLK2ktvaO4tPzl8vLi06WlpRd27twZUlScHhRQ4DE95mla9XLhwoXVsVhs8Zn2839hs1o2JFNJr9PhtCUSiXgqnQJ+aGn82PBDLiQFMIkDRE5ZNOvjSxcv+cmy1ctOPP7444FpNehZ2FkFHrNw0vM15Pvuu8+zdevWJV2dvVtcTsct0VjUjXclSopL3AP+Ac3r8WoWi0UDsGgpYIjdbtesViv/TuFeggp//DbN/qVFLQu+98CfPHBqy5YtiXz1V7U7MQoo8JgY/dTTBgVWrlzZcurIibfGUun/nUzGveAwXC6ny5LGCotGo5rP59OCwaAAC+g7BHAQSOIAEl4Ou0Oz2WxaPB4PgFNx4KNj5aVln2pqaXph165d5xWhC48CCjwKb06mVY/Wrl3rvXDhwpLeS11fiSUSa8A6kFPw2W12LZFMaG6PRwuHw1pRUZEWiUQEaKQAHslkUksmEprD4dCS8YTkQCDPpLWy0jIATbgnnog6rZrl28tXLf+XvXv3nppWhJkFnVXgMQsmOV9DBHA0Hj9w/K2BiP+Dhg6j3ArQIAdB0URwEgCQDNeBf GcAGqyQbAVo2C0QWQwQ8bg9giOBXkSADkQdze/3wziDjzXLi+VFJe/rCfQczNdYVLtjp4ACj7HTbNY/gU1uaW1tXXzkyJFPQ8l5FxSeaQ8uchhCLMGqIig4nE7BYVA8SULHQXDQrPgS/yawJGNxAQ1ut1twJU7cn8Bn4js8Ry7EZrWlHDZHH7ia/nk1tXet37D+MJSpQCB1TTUFFHhM9QxMs/dTTDl37tzyzo6e7yfTiXkQO1wEBf5QCcqLphQrAIK/CRyjvdhG9t0EErZrSWud0IUE6+bNvefGG2/crwBktFTN332jn9n89UG1PE0ocPO6dQ27Dx25KxQKb8FGhj7UVZKgGCJkCx1ABHdhAo2RwAN2WnFZ9ccuP2/QxOVyCS6EilWrxXoWithYTcWcuy72XFQizBSvGwUeUzwB+n18N1YcPrUuQ8kktG3o89Jj9dbGgqFNCs4A3lJ4DCPaaLgIbmZirJyrbevlwDS53DYuxrrGu862nb08HSh30zspwKPmTirORwTfDdsL7zwwkL4bnwrHo+uhGLTabXbXAQOIU5Ax5ENEBJE+Js6kOGubM5Dch9yYXq9Xt3Eawg05ETCkfBZ3HepdemSew8dOnQ6h8NVTY2BAgo8xkCs2Xbrxo0bi07tP7X4Ym/HD2PJWJXL7S6CYhN4oQMCuA+NIMJrMAAZL3iYORnqTmTbQpEKsy6ulNVq70smYj9bsXrFx/fs2XNuts1NIYxXgUchzEIB9mHdunW1bSfaburq6f4y1BEe+GkUBwIBjSc/1RMxOH4J0DCAZCjuY6xiy1WkMPQoBA6acZ1wJqMOhLoP3Bst9hZ9sba+9gtHjx7tKkAyzuguKfCY0dM7vsGtX7++fv+ug28JxYIfIzhAPCmlGTWOzSssIrSkUCRx2LV04rLVdCSgGFdv8B46ktFLlX2g/4gw6aIvsMCEtXTKXVVT/dDNN9/8NCwwuruquiaFAgo8JoXMV7/k4bUPe8/MOWNvuNSQ+NrLXwtj4xn2hinqkPHapUuXNh09evzP4afxLgAHMCLtlac+gYQblxuZwJHiBs4yruYaQOgvwvcLWQU6FopM/IEbu/htT1v86XSyvaGl+Y0nT548NrXUm11vV+AxifNN5SPY69qzZ8+u6+/2Xwsn7UqEpl8qKyk7Xl1bvd9pcXbuOjJ1cRytza3NR9qOfwF+XLfbHHYbxAO7ML9SPDH8NaSCU5JNmljzRUbJ6cj2uWDNClmXFSCWTJwB/7N96fyl799/an9Hvvqi2r2SAgo8JmlFADiKXnzxxdUIU/8MmP6V2JIMU09ZUhZbPBkn7x+ya/YdnjLffzbWzHv+3jffe2YyI0rrq6sXdvT2/XsykVoFa4oHwGETEa9ZfhuFAB7mKUsnU5rDaosmUolwqbfsw7fcecsPVDj/5CxqBR6TQGd4ZTrOnz9/w8ULHV+Du/VcKB29sUTcKVhwpLWgGAAX7SRMkAmc+kl82l5U7Pt084JmRpTm1RTJvp04cWJZf9/Af0MEqQGHUeYt8gmRIAATacZrlG7lpivfHMdw0yK5IPaIwh5jYRx2VzcC6Tobauvf1H6x/cAkTOusf4UCj0lYAgxX37/vwON2m7MxAZMnxQCEgohoU/hWijwXEfyN6A/NTvRIJWn/TNvttv1l5WVbGhsb9yDD1oVcd5Wm2D0v7bl5INT/r3aHc24sHvPZoZykXkP4VkDXkBERCgA8zN6rEkAYmVtZXqH19/eTbh0el3sbonAf2bFjx8Vc00u1p8SWSV0DONlLDx048hfhSOiD4DrgY+UTvhEwNYoAMS2NwDEGk0EZyPD1KALECCwQG9KwLESxYWBBsDy1eN6Cz6y+cXXOMmwtaVhSd7ar475QeOATJAhEqAqAx2X9BvrGgLVwlIGtPOL1c2ayOQ5p2RnSe9WQowQ9YUG2aKmAy+370H2L7/nhd/d+Nzipkz3LXqY4jzxPeF1d3ZoL5y/+FPktyhGeXkROw2YkwknQYmDTzZ68xG/+CFDJGF+i4pRNW3rdHtc/L1zY8lPmthivdYbZvk7sPtF8oO3Qu/D+d6e0lKPIV+Qkp+F0u/ScG+A+aOEgkCGsdUrBwzw9gwGI3eqACTmuyZD+aFR4rZ1sbGq4//Tp04fyPL2zunkFHnmcfogFZdu2bvsMxJG3gLsoZV4Lv18/DMlt2Jx0eIqD+QCIMEkOWHCbA4Fg+E13bOFbEU0IxywEhoUo2wN8TldUVj+yrLxl77bj2zrH2v2q0qrr+vr7PlvkKbneHx7weH1eSyCIdKGG74ZM1kPAojlWZvqS7uHyfXLhTJZ9OVtRK8GVOiMR/g/nMYIIsJjXJXz/8/kLb/zL4+Og0VhpOlvvV+CRx5lfguvokWNPFRUXVyKxTTFf5XJ7hYNTkkDAQ53xIXb9dE/jc6CH+JviATeF1WLXGN/BDV5aUqoNDPRTURIDd/DN2tqqr7S3t58cLRcCrsP5zJPPvCsUCH8UPagqLSvz9fZ1a8UlIvGOLj+B49H9OgBo4EBE8h72J9ufw6BbvsHDrHMx+5BkuBAkD3E7wTEJ/RFSmPk8WghslM3q6PcWlbxrYKDzqTxO8axuWoFHnqb/wVUP+v5r7399CGv7/fipEqIIRAAZtk5wkPL8YF0wKwe5mY1EwUI3gu9CsILE8Pt0ZWnxh5sXLqRCdVTu2eXlNSv6ent/4nY4yyGyVCTSgBFyOngH+yMdsfjZYEFv2Qsm3+Ax3PSQGxE0ZB4RerwiM5kDHBwvxMB0JFPpk61LF71ZBc/lZ5Er8MgPXbVVq1bNP7z/8I+w1RuxyCsFZwGLhQAFsdj1hT+UR6ZZvidwyI2dpR+55LXbHGDXfzB/8eIvFBcXnwCIID3X0BeT+ezauf9tcGj9xySSFNvsVhd+630igKTggYK/EQQnvDizr0ICj8s0Zf+ZpQwesFbDGxUyHpMH+Vzev9p89+ZvKtf13C90BR65p6losaam5q5LHZ1fgoWlgYVJrgIPLPbBTnbZHTN4ZLw7jRNWPqf7OaSi6VSyDzsnXOIr/VjjwsbfjhRlitwc9aeOt/+T3e54bUKL11K3QkUpQQMJfkTg2WD9yBOpJtRsRhdiKJqRk11vD/QFF9Vlt9q7a+tr7qB4N6EXqYdHPEgUiXJAgc2bN5f86slffRan99sisaiLrD3zekpzp9Bz8L9hUvRlZ+QS4GNEmEqOheHqCEvXKpBtPBqK90biEQfe9cOm+qbP3/y6m4899thjhp316kGhOlsL1Cc/Q8rhKnw7h+H19DuhwpTvkaJMDsiR1ybMilRyTbxEGL8hT5H7gKvs365es/rLqhpdbqdCcR65pado7YZrrmneuXvvL9NWWyNAw8d1nJHPDXMsF7esYTJYFwYDDwkg8n5ukiKvR2NBJao0Ya6Mw1sVpVNSPR6H+1OLlQ/a3PzN37r24fNmyN++uKxXosv18wHW/C6+lFj9/E0Sg1X6N+gQx1Mug/I5U2g+o+Oa2+9T8S9Q0cW/yA9VpHtV4JHLmmp2iV1fV12/vXn/g5hK11hMDiP3A+JvHZbL8n1w/5y+QJ95vX2c7XJd/D/l9uBfF+E9C1kMvF9fX1C6kQvT4vR9fT7PZyXg/q3/7P/u//9v/u//9/9j//x/9v/u//5//v/u//5/9n//f/9//n//f/9v/u//7//v/u/
+const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
@@ -13,6 +13,15 @@ const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
 
 // ==================================== Ingestão da request que vem do stdin =============
 
+/**
+ * Main Request Loop
+ *
+ * Reads the HTTP request from STDIN (provided by the systemd socket or local server wrapper).
+ * - Parses the Request-Line (Method, URI).
+ * - Reads headers line-by-line until an empty line is found.
+ * - Populates $_SERVER with HTTP_* variables.
+ * - Handles special "Tailscale-User-Login" header security fix.
+ */
 $_http_header = fgets(STDIN);
 $_http_header = trim($_http_header);
 $_http_header = explode(" ", $_http_header);
@@ -22,7 +31,22 @@ $_SERVER['REQUEST_URI'] = $_http_header[1];
 $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
 $_HEADERS = array();
-function header(string $header) {
+
+/**
+ * Adds a raw HTTP header to the response buffer.
+ *
+ * This function serves as a secure replacement for PHP's native header() function,
+ * which is disabled in this environment. It buffers the header to be sent later
+ * during the shutdown phase.
+ *
+ * Security:
+ * - Validates input to prevent HTTP Response Splitting (CRLF injection).
+ * - Logs a security warning if control characters are detected.
+ *
+ * @param string $header The raw header string (e.g., "Location: /foo").
+ */
+function header(string $header)
+{
     if (strpbrk($header, "\r\n") !== false) {
         error_log("Security Warning: Header injection attempt detected in header(): $header");
         return;
@@ -55,7 +79,21 @@ while (true) {
 
 // ==================================== Primitiva de header pra retorno =============
 $_HEADERS_KV = array();
-function set_header(string $key, string $value) {
+
+/**
+ * Sets a Key-Value HTTP header.
+ *
+ * Similar to header(), but accepts a key and value separately. These are stored
+ * in a key-value array, allowing for specific lookups (e.g., Content-Type) later.
+ *
+ * Security:
+ * - Validates both key and value for CRLF characters to prevent injection.
+ *
+ * @param string $key The header name (e.g., "Content-Type").
+ * @param string $value The header value (e.g., "application/json").
+ */
+function set_header(string $key, string $value)
+{
     if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
         error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
         return;
@@ -69,21 +107,38 @@ set_header("Connection", "close");
 set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
 
 // ==================================== Utilitários para content-type =============
-function set_contenttype(string $content_type) {
+
+/**
+ * Helper to set the Content-Type header.
+ * @param string $content_type The MIME type (e.g., "text/html").
+ */
+function set_contenttype(string $content_type)
+{
     set_header("Content-Type", $content_type);
 }
 
 set_contenttype("auto"); // default
 
-function content_text() {
+/** Sets Content-Type to text/plain; charset=utf-8 */
+function content_text()
+{
     set_contenttype("text/plain; charset=utf-8");
 }
 
-function content_html() {
+/** Sets Content-Type to text/html */
+function content_html()
+{
     set_contenttype("text/html");
 }
 
-function mime_from_buffer($buffer) {
+/**
+ * Detects MIME type from binary data buffer using finfo.
+ * Used when Content-Type is set to "auto".
+ * @param string $buffer The content buffer.
+ * @return string The detected MIME type.
+ */
+function mime_from_buffer($buffer)
+{
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     return $finfo->buffer($buffer);
 }
@@ -94,7 +149,16 @@ $INPUT_DATA = array_merge_recursive($_GET, $_POST);
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
 $IS_ROUTED = false;
 
-function mark_routed() {
+/**
+ * Marks the current request as routed.
+ *
+ * This function is used to prevent multiple routes from matching the same request.
+ * It updates the global $IS_ROUTED flag.
+ *
+ * @return bool The previous state of the routed flag (true if already routed).
+ */
+function mark_routed()
+{
     global $IS_ROUTED;
     $orig_VALUE = $IS_ROUTED;
     $IS_ROUTED = true;
@@ -103,9 +167,19 @@ function mark_routed() {
 
 
 /**
- * bring required variables to scope then require the new file
+ * Executes a PHP script within the current scope.
+ *
+ * Imports global variables ($INPUT_DATA, $ROUTE) so the included script
+ * can access them.
+ *
+ * Security:
+ * - Prevents Local File Inclusion (LFI) by validating that the script path
+ *   resolves to a location inside the current working directory ($base_path).
+ *
+ * @param string $script The path to the PHP script to execute.
  */
-function execphp(string $script) {
+function execphp(string $script)
+{
     global $INPUT_DATA, $ROUTE;
     $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
 
@@ -122,9 +196,19 @@ function execphp(string $script) {
 }
 
 /**
- * create a route that matches anything starting with $base_route
+ * Registers a prefix route (middleware-style).
+ *
+ * Matches any request URI that starts with $base_route. If matched:
+ * - Updates global $ROUTE by removing the prefix.
+ * - Executes the handler script.
+ *
+ * Useful for mounting sub-applications or grouping routes.
+ *
+ * @param string $base_route The URI prefix to match (e.g., "/api").
+ * @param string $handler_script The script to handle the request.
  */
-function use_route(string $base_route, string $handler_script) {
+function use_route(string $base_route, string $handler_script)
+{
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
         if ($IS_ROUTED) return;
@@ -134,9 +218,16 @@ function use_route(string $base_route, string $handler_script) {
 }
 
 /**
- * create a route that matches exactly $selected_route
+ * Registers an exact match route.
+ *
+ * Matches only if the current global $ROUTE is identical to $selected_route.
+ * If matched, marks the request as routed and executes the handler.
+ *
+ * @param string $selected_route The exact URI to match (e.g., "/about").
+ * @param string $handler_script The script to handle the request.
  */
-function exact_route(string $selected_route, string $handler_script) {
+function exact_route(string $selected_route, string $handler_script)
+{
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
         if (mark_routed()) return;
@@ -145,10 +236,18 @@ function exact_route(string $selected_route, string $handler_script) {
 }
 
 /**
- * create a route with route params, like /users/:user/info 
- * and pass the route param with input_data
+ * Registers a parameterized route.
+ *
+ * Supports dynamic segments defined with a colon (e.g., "/users/:id/edit").
+ * - Parses the URI and extracts parameter values.
+ * - Merges parameters into the global $INPUT_DATA array.
+ * - Matches only if the structure (segment count and static parts) aligns.
+ *
+ * @param string $selected_route The route pattern (e.g., "/post/:id").
+ * @param string $handler_script The script to handle the request.
  */
-function exact_with_route_param(string $selected_route, string $handler_script) {
+function exact_with_route_param(string $selected_route, string $handler_script)
+{
     global $INPUT_DATA, $ROUTE;
     $preprocess = function (string $raw_route) {
         $splitted = preg_split("/\//", $raw_route);
@@ -181,17 +280,48 @@ function exact_with_route_param(string $selected_route, string $handler_script) 
     execphp($handler_script);
 }
 
-function content_scope_push() {
+/**
+ * Starts a new output buffer.
+ *
+ * This allows capturing echo output into a variable, which is useful for
+ * building the response body or processing template content.
+ */
+function content_scope_push()
+{
     ob_start();
 }
 
-function content_scope_pop() {
+/**
+ * Ends the current output buffer and returns its contents.
+ * @return string|false The buffered content.
+ */
+function content_scope_pop()
+{
     $data = ob_get_contents();
     ob_end_clean();
     return $data;
 }
 
-function content_scope_pop_markdown() {
+/**
+ * Pops the current scope, renders the content as Markdown, and returns HTML.
+ *
+ * Supported Syntax:
+ * - Headings (# H1, ## H2...)
+ * - Bold (**text**, __text__)
+ * - Italics (*text*, _text_)
+ * - Strikethrough (~text~)
+ * - Links ([label](url))
+ * - Images (![alt](url))
+ * - Blockquotes (> text)
+ *
+ * @security WARNING: This renderer has known XSS vulnerabilities.
+ * It does not escape HTML content before wrapping it in block tags.
+ * Input should be trusted or sanitized before using this function.
+ *
+ * @return string The rendered HTML.
+ */
+function content_scope_pop_markdown()
+{
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
@@ -273,14 +403,32 @@ function content_scope_pop_markdown() {
     return content_scope_pop();
 }
 
-function sakuracss_auto () {
+/**
+ * Injects SakuraCSS for instant, classless styling.
+ * Supports automatic dark mode detection.
+ */
+function sakuracss_auto()
+{
     ?>
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" media="screen" />
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
     <?php
 }
 
-function auth_tailscale() {
+/**
+ * authenticates the user via Tailscale headers.
+ *
+ * Populates global constants:
+ * - TS_NAME: User's display name.
+ * - TS_PROFILE_PIC: User's profile picture URL.
+ * - TS_HAS_LOGIN: Boolean indicating if a user is logged in.
+ *
+ * Fallback:
+ * If no valid Tailscale headers are found, or if the login is invalid,
+ * it defaults to an "Anonymous" profile.
+ */
+function auth_tailscale()
+{
     $name = "";
     $profile_pic = "";
     $has_login = true;
@@ -302,13 +450,27 @@ function auth_tailscale() {
 }
 auth_tailscale();
 
-function rickroll_user() {
+/**
+ * Redirects the user to a "Rick Roll" video.
+ *
+ * Used as a playful penalty for unauthorized access or invalid states.
+ * Terminates execution immediately, triggering the shutdown handler.
+ */
+function rickroll_user()
+{
     http_response_code(HTTP_STATUS_TEMPORARY_REDIRECT);
     set_header("Location", RICKROLL_URL);
     exit(0); // dispara shutdown, que vai enviar o que precisa ser enviado
 }
 
-function rickroll_unlogged() {
+/**
+ * Checks if the user is logged in via Tailscale.
+ *
+ * If the user is not authenticated (anonymous), they are redirected
+ * to the Rick Roll URL.
+ */
+function rickroll_unlogged()
+{
     if (!TS_HAS_LOGIN) {
         rickroll_user();
     }
@@ -318,7 +480,19 @@ content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda 
 
 // ==================================== Finalização =========================
 
-function shutdown() {
+/**
+ * Shutdown Handler
+ *
+ * This function is registered via register_shutdown_function and is responsible
+ * for sending the final HTTP response.
+ *
+ * - Sends the HTTP status line.
+ * - Sends buffered raw headers and Key-Value headers.
+ * - Auto-detects Content-Type if set to "auto" using the response body.
+ * - Outputs the buffered response body.
+ */
+function shutdown()
+{
     global $_HEADERS;
     global $_HEADERS_KV;
     $data = content_scope_pop();
@@ -362,4 +536,3 @@ if (!file_exists($ROUTES_SCRIPT)) {
     include "$ROUTES_SCRIPT";
 }
 
-?>
