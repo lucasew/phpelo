@@ -1,0 +1,14 @@
+[tools]
+
+[tasks]
+"install:composer" = "composer install"
+install = { depends = ["install:*"] }
+"lint:phpcs" = "vendor/bin/phpcs"
+lint = { depends = ["lint:*"] }
+"fmt:phpcbf" = "vendor/bin/phpcbf"
+fmt = { depends = ["fmt:*"] }
+"test:syntax" = "php -d disable_functions=header -l entrypoint.php"
+test = { depends = ["test:*"] }
+"codegen:noop" = "echo 'No codegen'"
+codegen = { depends = ["codegen:*"] }
+ci = { depends = ["lint", "test"] }

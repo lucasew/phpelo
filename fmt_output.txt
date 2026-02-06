@@ -1,0 +1,10 @@
+[fmt:phpcbf] $ vendor/bin/phpcbf
+... 3 / 3 (100%)
+
+
+
+No violations were found
+
+Time: 119ms; Memory: 6MB
+
+Finished in 171.8ms

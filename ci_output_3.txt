@@ -1,0 +1,11 @@
+[lint:phpcs] $ vendor/bin/phpcs
+[test:syntax] $ php -d disable_functions=header -l entrypoint.php
+[test:syntax] No syntax errors detected in entrypoint.php
+[test:syntax] Finished in 40.9ms
+[lint:phpcs] ... 3 / 3 (100%)
+[lint:phpcs]
+[lint:phpcs]
+[lint:phpcs] Time: 112ms; Memory: 6MB
+[lint:phpcs]
+[lint:phpcs] Finished in 158.1ms
+Finished in 160.9ms
