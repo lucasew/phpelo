@@ -1,11 +1,15 @@
 <?php
 
+// phpcs:disable PSR1.Files.SideEffects
+
 // 🧹 Janitor: Replace magic strings with named constants for special Tailscale login values.
 const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
 const TS_LOGIN_EMPTY = "";
 const TS_LOGIN_ANONYMOUS = "anonymous";
 const TS_NAME_ANONYMOUS = "Anônimo";
+// phpcs:disable Generic.Files.LineLength
 const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+// phpcs:enable Generic.Files.LineLength
 const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
@@ -30,6 +34,11 @@ $_SERVER['REQUEST_METHOD'] = $_http_header[0];
 $_SERVER['REQUEST_URI'] = $_http_header[1];
 $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
+/**
+ * Global buffer for raw HTTP headers.
+ * Populated by header() and output during shutdown().
+ * @var string[]
+ */
 $_HEADERS = array();
 
 /**
@@ -55,6 +64,7 @@ function header(string $header)
     array_push($_HEADERS, $header);
 }
 
+// Read headers line-by-line until the first empty line (end of headers)
 while (true) {
     $_header = fgets(STDIN);
     $_header = trim($_header);
@@ -62,7 +72,7 @@ while (true) {
         break;
     }
     $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name)+1);
+    $_header_value = substr($_header, strlen($_header_name) + 1);
     $_header_value = trim($_header_value);
 
     // fixes security issue where an attacker could
@@ -78,6 +88,12 @@ while (true) {
 }
 
 // ==================================== Primitiva de header pra retorno =============
+
+/**
+ * Global buffer for Key-Value HTTP headers.
+ * Allows overriding headers (e.g., Content-Type) before shutdown.
+ * @var array<string, string>
+ */
 $_HEADERS_KV = array();
 
 /**
@@ -104,7 +120,12 @@ function set_header(string $key, string $value)
 
 set_header("Server", "phpelo");
 set_header("Connection", "close");
-set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
+// phpcs:disable Generic.Files.LineLength
+set_header(
+    "Content-Security-Policy",
+    "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';"
+);
+// phpcs:enable Generic.Files.LineLength
 
 // ==================================== Utilitários para content-type =============
 
@@ -145,8 +166,26 @@ function mime_from_buffer($buffer)
 
 
 // ==================================== Utilitários para roteamento =============
+
+/**
+ * Global input data merged from GET and POST parameters.
+ * Accessible to all included scripts.
+ * @var array
+ */
 $INPUT_DATA = array_merge_recursive($_GET, $_POST);
+
+/**
+ * Current route path relative to the script execution.
+ * Modified by use_route() to handle sub-paths.
+ * @var string
+ */
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
+
+/**
+ * Flag indicating if the request has been handled by a route.
+ * Prevents multiple routes from matching the same request.
+ * @var bool
+ */
 $IS_ROUTED = false;
 
 /**
@@ -211,7 +250,9 @@ function use_route(string $base_route, string $handler_script)
 {
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
-        if ($IS_ROUTED) return;
+        if ($IS_ROUTED) {
+            return;
+        }
         $ROUTE = substr($ROUTE, strlen($base_route));
         execphp($handler_script);
     }
@@ -230,7 +271,9 @@ function exact_route(string $selected_route, string $handler_script)
 {
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
-        if (mark_routed()) return;
+        if (mark_routed()) {
+            return;
+        }
         execphp($handler_script);
     }
 }
@@ -253,7 +296,7 @@ function exact_with_route_param(string $selected_route, string $handler_script)
         $splitted = preg_split("/\//", $raw_route);
         // 🧹 Janitor: The original code called an undefined function `is_empty_string`.
         // Replaced with the correct inline check to filter out empty path segments.
-        $splitted = array_filter($splitted, function($v, $k) {
+        $splitted = array_filter($splitted, function ($v, $k) {
             return $v !== '';
         }, ARRAY_FILTER_USE_BOTH);
         return array_values($splitted);
@@ -275,7 +318,9 @@ function exact_with_route_param(string $selected_route, string $handler_script)
     } else {
         return;
     }
-    if (mark_routed()) return;
+    if (mark_routed()) {
+        return;
+    }
     $INPUT_DATA = array_merge_recursive($INPUT_DATA, $extra_params);
     execphp($handler_script);
 }
@@ -325,30 +370,56 @@ function content_scope_pop_markdown()
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
+    // Standardize line breaks and spacing before headers
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
 
-    $lines = preg_replace('/\*\*(.*)\*\*/', '<b>\\1</b>', $lines);
-    $lines = preg_replace('/\_\_(.*)\_\_/', '<b>\\1</b>', $lines);
-    $lines = preg_replace('/\*(.*)\*/', '<em>\\1</em>', $lines);
-    $lines = preg_replace('/\_(.*)\_/', '<em>\\1</em>', $lines);
-    $lines = preg_replace('/\~(.*)\~/', '<del>\\1</del>', $lines);
+    // Convert Markdown formatting to HTML
+    $lines = preg_replace('/\*\*(.*)\*\*/', '<b>\\1</b>', $lines); // Bold (**text**)
+    $lines = preg_replace('/\_\_(.*)\_\_/', '<b>\\1</b>', $lines); // Bold (__text__)
+    $lines = preg_replace('/\*(.*)\*/', '<em>\\1</em>', $lines);   // Italic (*text*)
+    // phpcs:disable Generic.Files.LineLength
+    $lines = preg_replace('/\_(.*)\_/', '<em>\\1</em>', $lines);   // Italic (_text_)
+    $lines = preg_replace('/\~(.*)\~/', '<del>\\1</del>', $lines); // Strikethrough (~text~)
+    // phpcs:enable Generic.Files.LineLength
 
+    // Convert Images: ![alt](url) -> <img ...>
     while (true) {
+        // phpcs:disable Generic.Files.LineLength
         if (!preg_match('/\!\[([^\]]*?)\]\(([a-z]*:\/\/([a-z-0-9]*\.?)+(:[0-9]+)?[^\s\)]*)\)/m', $lines, $link_found, 0)) {
             break;
         }
+        // phpcs:enable Generic.Files.LineLength
         $search_term = $link_found[0];
         $label = $link_found[1];
         $link = $link_found[2];
         $json = json_encode($link_found);
         content_scope_push();
-        printf('<img alt="%s" title="%s" src="%s">', htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+        // phpcs:disable Generic.Files.LineLength
+        printf(
+            '<img alt="%s" title="%s" src="%s">',
+            htmlspecialchars($label, ENT_QUOTES),
+            htmlspecialchars($label, ENT_QUOTES),
+            htmlspecialchars($link, ENT_QUOTES)
+        );
+        // phpcs:enable Generic.Files.LineLength
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
+
+    // Convert Links: [label](url) -> <a href...>
     while (true) {
-        if (!preg_match('/[\(\s]([a-z]*:\/\/([a-z-0-9]*\.?)+(:[0-9]+)?[^\s\)]*)[\)\s]/m', $lines, $link_found, PREG_OFFSET_CAPTURE, 0)) {
+        if (
+            !preg_match(
+                // phpcs:disable Generic.Files.LineLength
+                '/[\(\s]([a-z]*:\/\/([a-z-0-9]*\.?)+(:[0-9]+)?[^\s\)]*)[\)\s]/m',
+                // phpcs:enable Generic.Files.LineLength
+                $lines,
+                $link_found,
+                PREG_OFFSET_CAPTURE,
+                0
+            )
+        ) {
             break;
         }
         $link = substr($link_found[0][0], 1, -1);
@@ -358,13 +429,25 @@ function content_scope_pop_markdown()
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
+            // phpcs:disable Generic.Files.LineLength
+            printf(
+                '<a href="%s">%s</a>',
+                htmlspecialchars($link, ENT_QUOTES),
+                htmlspecialchars($label, ENT_QUOTES)
+            );
+            // phpcs:enable Generic.Files.LineLength
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         } else {
             $search_term = $link;
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+            // phpcs:disable Generic.Files.LineLength
+            printf(
+                '<a href="%s">%s</a>',
+                htmlspecialchars($link, ENT_QUOTES),
+                htmlspecialchars($link, ENT_QUOTES)
+            );
+            // phpcs:enable Generic.Files.LineLength
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         }
@@ -375,6 +458,7 @@ function content_scope_pop_markdown()
 
     $lines = explode("\n", $lines);
 
+    // Process block-level elements (Headings, Blockquotes, Paragraphs)
     foreach ($lines as $i => $line) {
         $line = trim($line);
         if ($line == "") {
@@ -411,17 +495,22 @@ function sakuracss_auto()
 {
     ?>
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" media="screen" />
+        <?php // phpcs:disable Generic.Files.LineLength ?>
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-dark.css" media="screen and (prefers-color-scheme: dark)" />
+        <?php // phpcs:enable Generic.Files.LineLength ?>
     <?php
 }
 
 /**
- * authenticates the user via Tailscale headers.
+ * Authenticates the user via Tailscale headers.
  *
  * Populates global constants:
  * - TS_NAME: User's display name.
  * - TS_PROFILE_PIC: User's profile picture URL.
  * - TS_HAS_LOGIN: Boolean indicating if a user is logged in.
+ *
+ * Note: Relies on the TS_LOGIN constant, which is defined during the
+ * initial request parsing loop based on the "Tailscale-User-Login" header.
  *
  * Fallback:
  * If no valid Tailscale headers are found, or if the login is invalid,
@@ -438,7 +527,11 @@ function auth_tailscale()
     if (array_key_exists("HTTP_TAILSCALE_USER_PROFILE_PIC", $_SERVER)) {
         $profile_pic = $_SERVER["HTTP_TAILSCALE_USER_PROFILE_PIC"];
     }
-    if (!defined("TS_LOGIN") || TS_LOGIN == TS_LOGIN_TAGGED_DEVICES || TS_LOGIN == TS_LOGIN_EMPTY) {
+    if (
+            !defined("TS_LOGIN") ||
+            TS_LOGIN == TS_LOGIN_TAGGED_DEVICES ||
+            TS_LOGIN == TS_LOGIN_EMPTY
+    ) {
         $login = TS_LOGIN_ANONYMOUS;
         $name = TS_NAME_ANONYMOUS;
         $profile_pic = TS_PROFILE_PIC_ANONYMOUS;
@@ -519,12 +612,16 @@ function shutdown()
     echo "\r\n";
 
     echo $data;
-
 }
 register_shutdown_function('shutdown');
 
 // ==================================== ROTAS ===============================
 
+/**
+ * The directory where the route handler scripts are located.
+ * Defined via environment variable.
+ * @var string
+ */
 $SCRIPT_DIR = getenv("SCRIPT_DIR");
 chdir($SCRIPT_DIR);
 
