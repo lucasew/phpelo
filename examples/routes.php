@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Example Routing Configuration
  *
@@ -10,5 +11,3 @@
 http_response_code(404);
 
 exact_route('/ok', 'ok.php');
-
-?>
