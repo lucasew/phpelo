@@ -373,9 +373,11 @@ class App
 
 // ==================================== GLOBAL HELPERS (FACADES) ====================================
 
-function header(string $header)
-{
-    Response::instance()->addRawHeader($header);
+if (!function_exists('header')) {
+    function header(string $header)
+    {
+        Response::instance()->addRawHeader($header);
+    }
 }
 
 function set_header(string $key, string $value)
