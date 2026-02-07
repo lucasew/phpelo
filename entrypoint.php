@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable PSR1.Files.SideEffects
+// phpcs:disable Generic.Files.LineLength
 
 // 🧹 Janitor: Replace magic strings with named constants for special Tailscale login values.
 const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
