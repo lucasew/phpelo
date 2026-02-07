@@ -64,7 +64,7 @@ while (true) {
         break;
     }
     $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name)+1);
+    $_header_value = substr($_header, strlen($_header_name) + 1);
     $_header_value = trim($_header_value);
 
     // fixes security issue where an attacker could
@@ -213,7 +213,9 @@ function use_route(string $base_route, string $handler_script)
 {
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
-        if ($IS_ROUTED) return;
+        if ($IS_ROUTED) {
+            return;
+        }
         $ROUTE = substr($ROUTE, strlen($base_route));
         execphp($handler_script);
     }
@@ -232,7 +234,9 @@ function exact_route(string $selected_route, string $handler_script)
 {
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
-        if (mark_routed()) return;
+        if (mark_routed()) {
+            return;
+        }
         execphp($handler_script);
     }
 }
@@ -277,7 +281,9 @@ function exact_with_route_param(string $selected_route, string $handler_script)
     } else {
         return;
     }
-    if (mark_routed()) return;
+    if (mark_routed()) {
+        return;
+    }
     $INPUT_DATA = array_merge_recursive($INPUT_DATA, $extra_params);
     execphp($handler_script);
 }
