@@ -1,0 +1,11 @@
+{
+    "name": "phpelo/phpelo",
+    "description": "A simple PHP framework for systemd socket activation",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "format": "phpcbf"
+    }
+}
