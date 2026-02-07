@@ -30,6 +30,11 @@ $_SERVER['REQUEST_METHOD'] = $_http_header[0];
 $_SERVER['REQUEST_URI'] = $_http_header[1];
 $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
+/**
+ * Global buffer for raw HTTP headers.
+ * Populated by header() and output during shutdown().
+ * @var string[]
+ */
 $_HEADERS = array();
 
 /**
@@ -55,6 +60,7 @@ function header(string $header)
     array_push($_HEADERS, $header);
 }
 
+// Read headers line-by-line until the first empty line (end of headers)
 while (true) {
     $_header = fgets(STDIN);
     $_header = trim($_header);
@@ -78,6 +84,12 @@ while (true) {
 }
 
 // ==================================== Primitiva de header pra retorno =============
+
+/**
+ * Global buffer for Key-Value HTTP headers.
+ * Allows overriding headers (e.g., Content-Type) before shutdown.
+ * @var array<string, string>
+ */
 $_HEADERS_KV = array();
 
 /**
@@ -145,8 +157,26 @@ function mime_from_buffer($buffer)
 
 
 // ==================================== Utilitários para roteamento =============
+
+/**
+ * Global input data merged from GET and POST parameters.
+ * Accessible to all included scripts.
+ * @var array
+ */
 $INPUT_DATA = array_merge_recursive($_GET, $_POST);
+
+/**
+ * Current route path relative to the script execution.
+ * Modified by use_route() to handle sub-paths.
+ * @var string
+ */
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
+
+/**
+ * Flag indicating if the request has been handled by a route.
+ * Prevents multiple routes from matching the same request.
+ * @var bool
+ */
 $IS_ROUTED = false;
 
 /**
@@ -325,15 +355,18 @@ function content_scope_pop_markdown()
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
+    // Standardize line breaks and spacing before headers
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
 
-    $lines = preg_replace('/\*\*(.*)\*\*/', '<b>\\1</b>', $lines);
-    $lines = preg_replace('/\_\_(.*)\_\_/', '<b>\\1</b>', $lines);
-    $lines = preg_replace('/\*(.*)\*/', '<em>\\1</em>', $lines);
-    $lines = preg_replace('/\_(.*)\_/', '<em>\\1</em>', $lines);
-    $lines = preg_replace('/\~(.*)\~/', '<del>\\1</del>', $lines);
+    // Convert Markdown formatting to HTML
+    $lines = preg_replace('/\*\*(.*)\*\*/', '<b>\\1</b>', $lines); // Bold (**text**)
+    $lines = preg_replace('/\_\_(.*)\_\_/', '<b>\\1</b>', $lines); // Bold (__text__)
+    $lines = preg_replace('/\*(.*)\*/', '<em>\\1</em>', $lines);   // Italic (*text*)
+    $lines = preg_replace('/\_(.*)\_/', '<em>\\1</em>', $lines);   // Italic (_text_)
+    $lines = preg_replace('/\~(.*)\~/', '<del>\\1</del>', $lines); // Strikethrough (~text~)
 
+    // Convert Images: ![alt](url) -> <img ...>
     while (true) {
         if (!preg_match('/\!\[([^\]]*?)\]\(([a-z]*:\/\/([a-z-0-9]*\.?)+(:[0-9]+)?[^\s\)]*)\)/m', $lines, $link_found, 0)) {
             break;
@@ -347,6 +380,8 @@ function content_scope_pop_markdown()
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
+
+    // Convert Links: [label](url) -> <a href...>
     while (true) {
         if (!preg_match('/[\(\s]([a-z]*:\/\/([a-z-0-9]*\.?)+(:[0-9]+)?[^\s\)]*)[\)\s]/m', $lines, $link_found, PREG_OFFSET_CAPTURE, 0)) {
             break;
@@ -375,6 +410,7 @@ function content_scope_pop_markdown()
 
     $lines = explode("\n", $lines);
 
+    // Process block-level elements (Headings, Blockquotes, Paragraphs)
     foreach ($lines as $i => $line) {
         $line = trim($line);
         if ($line == "") {
@@ -416,12 +452,15 @@ function sakuracss_auto()
 }
 
 /**
- * authenticates the user via Tailscale headers.
+ * Authenticates the user via Tailscale headers.
  *
  * Populates global constants:
  * - TS_NAME: User's display name.
  * - TS_PROFILE_PIC: User's profile picture URL.
  * - TS_HAS_LOGIN: Boolean indicating if a user is logged in.
+ *
+ * Note: Relies on the TS_LOGIN constant, which is defined during the
+ * initial request parsing loop based on the "Tailscale-User-Login" header.
  *
  * Fallback:
  * If no valid Tailscale headers are found, or if the login is invalid,
@@ -525,6 +564,11 @@ register_shutdown_function('shutdown');
 
 // ==================================== ROTAS ===============================
 
+/**
+ * The directory where the route handler scripts are located.
+ * Defined via environment variable.
+ * @var string
+ */
 $SCRIPT_DIR = getenv("SCRIPT_DIR");
 chdir($SCRIPT_DIR);
 
