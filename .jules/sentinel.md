@@ -19,3 +19,8 @@
 **Vulnerability:** The custom `header()` and `set_header()` functions lacked validation for CRLF characters, enabling HTTP Response Splitting. Additionally, improper initialization order of `$_HEADERS_KV` caused default security headers (CSP, Server) to be silently overwritten and lost.
 **Learning:** Custom implementations of core HTTP functionality require rigorous validation that standard libraries often provide implicitly. Also, execution order in procedural scripts can lead to silent failures of security controls (like CSP) if initialization logic resets state after configuration.
 **Prevention:** Always validate header inputs for control characters. Ensure global state initialization happens before any function calls that modify that state.
+
+## 2026-05-15 - Global Sanitization in Custom Markdown Parser
+**Vulnerability:** The `content_scope_pop_markdown` function was vulnerable to Stored XSS because it relied on regex replacements for formatting without escaping the underlying content, allowing raw HTML tags (e.g., `<script>`) to pass through.
+**Learning:** Regex-based parsers that mix text processing with HTML generation are prone to missing edge cases. A safer pattern for simple parsers is "Global Output Encoding" where the entire input is escaped first, and only specific safe markers (like blockquote `>`) are selectively unescaped or processed.
+**Prevention:** When unable to use a robust library, sanitize the entire input block at the start of the function using `htmlspecialchars($var, ENT_QUOTES)` to neutralize all HTML, then apply formatting logic on the safe content.
