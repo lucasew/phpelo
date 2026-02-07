@@ -9,3 +9,9 @@
 **Root Cause:** The HTTP status code was likely hardcoded as a quick implementation, without considering the long-term readability and maintainability benefits of using a named constant.
 **Solution:** I introduced a named constant, `HTTP_STATUS_TEMPORARY_REDIRECT`, and replaced the magic number `307` in the `rickroll_user` function. This change makes the code more self-documenting and aligns with best practices for writing clean, maintainable code.
 **Pattern:** Replace magic numbers, especially those representing status codes, flags, or other non-obvious values, with named constants to improve code clarity and maintainability.
+
+## 2026-01-14 - Refactor entrypoint.php to Object-Oriented Design
+**Issue:** The `entrypoint.php` script was a monolithic procedural file mixing request parsing, routing, response handling, and business logic (Tailscale auth, Markdown rendering). This violated SRP and made the code hard to test and maintain.
+**Root Cause:** The script was likely written as a quick prototype or "God Script" to handle everything in one place, typical for simple PHP entry points but unscalable.
+**Solution:** I refactored the script into distinct classes: `Request`, `Response`, `Router`, `MarkdownRenderer`, and `TailscaleAuth`. I replaced global state manipulation with Singleton instances and updated global functions to act as facades, maintaining backward compatibility while improving internal structure.
+**Pattern:** Refactor large procedural scripts into classes with single responsibilities (SRP) and use the Singleton pattern to manage global state where necessary, keeping the original API as a facade.

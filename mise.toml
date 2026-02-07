@@ -1,0 +1,7 @@
+[tasks]
+"codegen:noop" = "echo 'No codegen'"
+"install" = { depends = ["install:*"] }
+"install:composer" = "composer install"
+"test:syntax" = "php -d disable_functions=header -l entrypoint.php"
+"lint:phpcs" = "vendor/bin/phpcs"
+"fmt:phpcbf" = "vendor/bin/phpcbf"
