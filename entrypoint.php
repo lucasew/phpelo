@@ -10,6 +10,13 @@ const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
+const HTTP_STATUS_OK = 200;
+const HTTP_STATUS_NOT_FOUND = 404;
+const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
+
+const CONTENT_TYPE_AUTO = "auto";
+const CONTENT_TYPE_TEXT_PLAIN = "text/plain; charset=utf-8";
+const CONTENT_TYPE_TEXT_HTML = "text/html";
 
 // ==================================== Ingestão da request que vem do stdin =============
 
@@ -22,15 +29,43 @@ const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
  * - Populates $_SERVER with HTTP_* variables.
  * - Handles special "Tailscale-User-Login" header security fix.
  */
-$_http_header = fgets(STDIN);
-$_http_header = trim($_http_header);
-$_http_header = explode(" ", $_http_header);
+function parse_request() {
+    $_http_header = fgets(STDIN);
+    $_http_header = trim($_http_header);
+    $_http_header = explode(" ", $_http_header);
 
-$_SERVER['REQUEST_METHOD'] = $_http_header[0];
-$_SERVER['REQUEST_URI'] = $_http_header[1];
-$_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
+    $_SERVER['REQUEST_METHOD'] = $_http_header[0];
+    $_SERVER['REQUEST_URI'] = $_http_header[1];
+    $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
+
+    while (true) {
+        $_header = fgets(STDIN);
+        $_header = trim($_header);
+        if (strlen($_header) == 0) {
+            break;
+        }
+        $_header_name = explode(":", $_header)[0];
+        $_header_value = substr($_header, strlen($_header_name)+1);
+        $_header_value = trim($_header_value);
+
+        // fixes security issue where an attacker could
+        // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
+        if ($_header_name == "Tailscale-User-Login") {
+            define("TS_LOGIN", $_header_value);
+        }
+
+        $_header_name = strtoupper($_header_name);
+        $_header_name = str_replace("-", "_", $_header_name);
+
+        $_SERVER['HTTP_' . $_header_name] = $_header_value;
+    }
+}
+parse_request();
 
 $_HEADERS = array();
+
+// ==================================== Primitiva de header pra retorno =============
+$_HEADERS_KV = array();
 
 /**
  * Adds a raw HTTP header to the response buffer.
@@ -54,31 +89,6 @@ function header(string $header)
     global $_HEADERS;
     array_push($_HEADERS, $header);
 }
-
-while (true) {
-    $_header = fgets(STDIN);
-    $_header = trim($_header);
-    if (strlen($_header) == 0) {
-        break;
-    }
-    $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name)+1);
-    $_header_value = trim($_header_value);
-
-    // fixes security issue where an attacker could
-    // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
-    if ($_header_name == "Tailscale-User-Login") {
-        define("TS_LOGIN", $_header_value);
-    }
-
-    $_header_name = strtoupper($_header_name);
-    $_header_name = str_replace("-", "_", $_header_name);
-
-    $_SERVER['HTTP_' . $_header_name] = $_header_value;
-}
-
-// ==================================== Primitiva de header pra retorno =============
-$_HEADERS_KV = array();
 
 /**
  * Sets a Key-Value HTTP header.
@@ -117,18 +127,18 @@ function set_contenttype(string $content_type)
     set_header("Content-Type", $content_type);
 }
 
-set_contenttype("auto"); // default
+set_contenttype(CONTENT_TYPE_AUTO); // default
 
 /** Sets Content-Type to text/plain; charset=utf-8 */
 function content_text()
 {
-    set_contenttype("text/plain; charset=utf-8");
+    set_contenttype(CONTENT_TYPE_TEXT_PLAIN);
 }
 
 /** Sets Content-Type to text/html */
 function content_html()
 {
-    set_contenttype("text/html");
+    set_contenttype(CONTENT_TYPE_TEXT_HTML);
 }
 
 /**
@@ -188,7 +198,7 @@ function execphp(string $script)
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
         error_log("Path Traversal attempt blocked: " . $script);
-        http_response_code(404);
+        http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }
 
@@ -498,7 +508,7 @@ function shutdown()
     $data = content_scope_pop();
 
     if (!http_response_code()) {
-        http_response_code(200); // default response code
+        http_response_code(HTTP_STATUS_OK); // default response code
     }
     echo "HTTP/1.0 ";
     echo http_response_code();
@@ -508,7 +518,7 @@ function shutdown()
         echo "$header\r\n";
     }
 
-    if ($_HEADERS_KV['Content-Type'] == 'auto') {
+    if ($_HEADERS_KV['Content-Type'] == CONTENT_TYPE_AUTO) {
         set_contenttype(mime_from_buffer($data));
     }
 
@@ -531,7 +541,7 @@ chdir($SCRIPT_DIR);
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
 
 if (!file_exists($ROUTES_SCRIPT)) {
-    http_response_code(404);
+    http_response_code(HTTP_STATUS_NOT_FOUND);
 } else {
     include "$ROUTES_SCRIPT";
 }
