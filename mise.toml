@@ -5,3 +5,4 @@
 "test:syntax" = "php -d disable_functions=header -l entrypoint.php"
 "lint:phpcs" = "vendor/bin/phpcs"
 "fmt:phpcbf" = "vendor/bin/phpcbf"
+"ci" = { depends = ["test:syntax", "lint:phpcs"] }
