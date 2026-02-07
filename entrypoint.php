@@ -29,7 +29,8 @@ const CONTENT_TYPE_TEXT_HTML = "text/html";
  * - Populates $_SERVER with HTTP_* variables.
  * - Handles special "Tailscale-User-Login" header security fix.
  */
-function parse_request() {
+function parse_request()
+{
     $_http_header = fgets(STDIN);
     $_http_header = trim($_http_header);
     $_http_header = explode(" ", $_http_header);
