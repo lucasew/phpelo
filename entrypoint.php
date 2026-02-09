@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * Single-file PHP framework entry point.
+ *
+ * This script serves as the core of the application, handling:
+ * - Request parsing from STDIN (CGI-like behavior).
+ * - Routing logic (exact, prefix, and parameterized).
+ * - Response buffering and lifecycle management.
+ * - Global state management ($_HEADERS, $ROUTE, etc.).
+ *
+ * Designed to run in a restricted environment (e.g., systemd socket activation)
+ * where standard PHP SAPI features might be bypassed or customized.
+ *
+ * @package Core
+ */
+
+// phpcs:disable PSR1.Files.SideEffects
+// phpcs:disable Generic.Files.LineLength
+
 // 🧹 Janitor: Replace magic strings with named constants for special Tailscale login values.
 const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
 const TS_LOGIN_EMPTY = "";
@@ -30,6 +48,11 @@ $_SERVER['REQUEST_METHOD'] = $_http_header[0];
 $_SERVER['REQUEST_URI'] = $_http_header[1];
 $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
+/**
+ * Global buffer for raw HTTP headers.
+ * Populated during the initial request parsing loop.
+ * @var array<string>
+ */
 $_HEADERS = array();
 
 /**
@@ -78,6 +101,12 @@ while (true) {
 }
 
 // ==================================== Primitiva de header pra retorno =============
+
+/**
+ * Global key-value store for structured HTTP headers (e.g., Content-Type).
+ * Used to prevent duplicates and allow easy modification before shutdown.
+ * @var array<string, string>
+ */
 $_HEADERS_KV = array();
 
 /**
@@ -145,8 +174,26 @@ function mime_from_buffer($buffer)
 
 
 // ==================================== Utilitários para roteamento =============
+
+/**
+ * Global input data array.
+ * Merges GET, POST, and route parameters into a single accessible structure.
+ * @var array<string, mixed>
+ */
 $INPUT_DATA = array_merge_recursive($_GET, $_POST);
+
+/**
+ * Current route path being processed.
+ * Modified by `use_route` as it traverses the URI segments.
+ * @var string
+ */
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
+
+/**
+ * Flag indicating if a route has been fully matched and handled.
+ * Prevents subsequent routes from executing once a match is found.
+ * @var bool
+ */
 $IS_ROUTED = false;
 
 /**
@@ -238,13 +285,19 @@ function exact_route(string $selected_route, string $handler_script)
 /**
  * Registers a parameterized route.
  *
- * Supports dynamic segments defined with a colon (e.g., "/users/:id/edit").
- * - Parses the URI and extracts parameter values.
- * - Merges parameters into the global $INPUT_DATA array.
- * - Matches only if the structure (segment count and static parts) aligns.
+ * Supports dynamic segments in the route pattern (e.g., `/user/:id`).
+ *
+ * Logic:
+ * 1. Splits both the route pattern and current URI into segments.
+ * 2. Matches segments:
+ *    - Static segments must match exactly.
+ *    - Dynamic segments (`:param`) are extracted.
+ * 3. If matched, merges extracted parameters into `$INPUT_DATA`.
+ * 4. Marks the request as routed and executes the handler.
  *
  * @param string $selected_route The route pattern (e.g., "/post/:id").
  * @param string $handler_script The script to handle the request.
+ * @return void
  */
 function exact_with_route_param(string $selected_route, string $handler_script)
 {
@@ -253,7 +306,7 @@ function exact_with_route_param(string $selected_route, string $handler_script)
         $splitted = preg_split("/\//", $raw_route);
         // 🧹 Janitor: The original code called an undefined function `is_empty_string`.
         // Replaced with the correct inline check to filter out empty path segments.
-        $splitted = array_filter($splitted, function($v, $k) {
+        $splitted = array_filter($splitted, function ($v, $k) {
             return $v !== '';
         }, ARRAY_FILTER_USE_BOTH);
         return array_values($splitted);
@@ -405,7 +458,12 @@ function content_scope_pop_markdown()
 
 /**
  * Injects SakuraCSS for instant, classless styling.
- * Supports automatic dark mode detection.
+ *
+ * Appends `<link>` tags to the output buffer, enabling:
+ * - Clean, minimal defaults for HTML elements.
+ * - Automatic dark mode support via `media="screen and (prefers-color-scheme: dark)"`.
+ *
+ * @return void
  */
 function sakuracss_auto()
 {
@@ -416,16 +474,16 @@ function sakuracss_auto()
 }
 
 /**
- * authenticates the user via Tailscale headers.
+ * Authenticates the user via Tailscale headers.
  *
- * Populates global constants:
- * - TS_NAME: User's display name.
- * - TS_PROFILE_PIC: User's profile picture URL.
- * - TS_HAS_LOGIN: Boolean indicating if a user is logged in.
+ * Populates global constants (`TS_NAME`, `TS_PROFILE_PIC`, `TS_HAS_LOGIN`).
  *
  * Fallback:
- * If no valid Tailscale headers are found, or if the login is invalid,
- * it defaults to an "Anonymous" profile.
+ * If no valid Tailscale headers are found (`HTTP_TAILSCALE_USER_*`), or if the
+ * `TS_LOGIN` constant (defined during parse) is missing/invalid, it defaults
+ * to the "Anonymous" profile.
+ *
+ * @return void
  */
 function auth_tailscale()
 {
@@ -455,6 +513,8 @@ auth_tailscale();
  *
  * Used as a playful penalty for unauthorized access or invalid states.
  * Terminates execution immediately, triggering the shutdown handler.
+ *
+ * @return never Exits script execution.
  */
 function rickroll_user()
 {
@@ -481,15 +541,20 @@ content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda 
 // ==================================== Finalização =========================
 
 /**
- * Shutdown Handler
+ * Global Shutdown Handler.
  *
- * This function is registered via register_shutdown_function and is responsible
- * for sending the final HTTP response.
+ * Registered via `register_shutdown_function`, this function constructs and sends
+ * the final HTTP response after script execution ends.
  *
- * - Sends the HTTP status line.
- * - Sends buffered raw headers and Key-Value headers.
- * - Auto-detects Content-Type if set to "auto" using the response body.
- * - Outputs the buffered response body.
+ * Workflow:
+ * 1. Retrieves buffered output content (`content_scope_pop`).
+ * 2. Sends HTTP status line (e.g., "HTTP/1.0 200 OK").
+ * 3. Sends collected raw headers (`$_HEADERS`).
+ * 4. Determines Content-Type (auto-detects via `finfo` if set to "auto").
+ * 5. Sends Key-Value headers (`$_HEADERS_KV`).
+ * 6. Flushes the response body.
+ *
+ * @return void
  */
 function shutdown()
 {
