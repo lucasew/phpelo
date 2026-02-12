@@ -49,3 +49,11 @@ This file lists patterns of changes that have been consistently rejected by huma
 **- Pattern:** Replacing hardcoded values (like HTTP status codes `200`, `404` or content types) with named constants.
 **- Justification:** The project prefers the immediacy of raw values over the abstraction of constants for standard protocol values. Attempts to introduce such constants (PR #20) have been rejected.
 **- Files Affected:** `entrypoint.php`
+
+---
+
+## IGNORE: Configuring Tooling and CI
+
+**- Pattern:** Adding configuration files for tooling (`mise.toml`, `composer.json`, `phpcs.xml`) or configuring CI workflows (`.github/workflows/autorelease.yml`).
+**- Justification:** An attempt to configure standard tooling and CI (PR #24) was rejected. The project likely relies on a minimal or external configuration strategy, and adding these files is considered out of scope or unwanted.
+**- Files Affected:** `mise.toml`, `composer.json`, `phpcs.xml`, `.github/workflows/autorelease.yml`
