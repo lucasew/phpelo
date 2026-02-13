@@ -1,0 +1,15 @@
+{
+    "name": "phpelo/phpelo",
+    "description": "The fastest way to make a simple HTTP service using PHP!",
+    "type": "project",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lucas Ew",
+            "email": "lucas59356@gmail.com"
+        }
+    ]
+}
