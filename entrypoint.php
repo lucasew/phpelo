@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable PSR1.Files.SideEffects
+// phpcs:disable Generic.Files.LineLength
 
 /**
  * Single-file PHP framework entry point.
@@ -85,7 +87,7 @@ while (true) {
         break;
     }
     $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name)+1);
+    $_header_value = substr($_header, strlen($_header_name) + 1);
     $_header_value = trim($_header_value);
 
     // fixes security issue where an attacker could
@@ -258,7 +260,9 @@ function use_route(string $base_route, string $handler_script)
 {
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
-        if ($IS_ROUTED) return;
+        if ($IS_ROUTED) {
+            return;
+        }
         $ROUTE = substr($ROUTE, strlen($base_route));
         execphp($handler_script);
     }
@@ -277,7 +281,9 @@ function exact_route(string $selected_route, string $handler_script)
 {
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
-        if (mark_routed()) return;
+        if (mark_routed()) {
+            return;
+        }
         execphp($handler_script);
     }
 }
@@ -328,7 +334,9 @@ function exact_with_route_param(string $selected_route, string $handler_script)
     } else {
         return;
     }
-    if (mark_routed()) return;
+    if (mark_routed()) {
+        return;
+    }
     $INPUT_DATA = array_merge_recursive($INPUT_DATA, $extra_params);
     execphp($handler_script);
 }
@@ -378,6 +386,12 @@ function content_scope_pop_markdown()
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
 
+    // 🛡️ Sentinel: Sanitize HTML content to prevent XSS.
+    // Escape all HTML characters, but attempt to preserve Markdown structure.
+    $lines = htmlspecialchars($lines, ENT_QUOTES);
+    // Unescape blockquotes marker (>) at the start of the line.
+    $lines = preg_replace('/^&gt;/m', '>', $lines);
+
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
 
@@ -396,7 +410,7 @@ function content_scope_pop_markdown()
         $link = $link_found[2];
         $json = json_encode($link_found);
         content_scope_push();
-        printf('<img alt="%s" title="%s" src="%s">', htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+        printf('<img alt="%s" title="%s" src="%s">', $label, $label, $link);
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
@@ -411,13 +425,13 @@ function content_scope_pop_markdown()
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
+            printf('<a href="%s">%s</a>', $link, $label);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         } else {
             $search_term = $link;
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+            printf('<a href="%s">%s</a>', $link, $link);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         }
