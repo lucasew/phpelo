@@ -367,9 +367,7 @@ function content_scope_pop()
  * - Images (![alt](url))
  * - Blockquotes (> text)
  *
- * @security WARNING: This renderer has known XSS vulnerabilities.
- * It does not escape HTML content before wrapping it in block tags.
- * Input should be trusted or sanitized before using this function.
+ * @security Input is sanitized using htmlspecialchars to prevent XSS.
  *
  * @return string The rendered HTML.
  */
@@ -377,6 +375,9 @@ function content_scope_pop_markdown()
 {
     content_html(); // would be always html anyway
     $lines = content_scope_pop();
+
+    $lines = htmlspecialchars($lines, ENT_QUOTES);
+    $lines = preg_replace('/^&gt;/m', '>', $lines);
 
     $lines = preg_replace("/\n\#/", "\n\n#", $lines);
     $lines = preg_replace("/\n+/", "\n", $lines);
@@ -396,7 +397,7 @@ function content_scope_pop_markdown()
         $link = $link_found[2];
         $json = json_encode($link_found);
         content_scope_push();
-        printf('<img alt="%s" title="%s" src="%s">', htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+        printf('<img alt="%s" title="%s" src="%s">', $label, $label, $link);
         $replace_term = content_scope_pop();
         $lines = str_replace($search_term, $replace_term, $lines);
     }
@@ -411,13 +412,13 @@ function content_scope_pop_markdown()
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
+            printf('<a href="%s">%s</a>', $link, $label);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         } else {
             $search_term = $link;
             content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
+            printf('<a href="%s">%s</a>', $link, $link);
             $replace_term = content_scope_pop();
             $lines = str_replace($search_term, $replace_term, $lines);
         }
