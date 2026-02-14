@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable PSR1.Files.SideEffects
+// phpcs:disable Generic.Files.LineLength
 
 // Mocks
 function content_html() {}
