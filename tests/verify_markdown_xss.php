@@ -3,9 +3,21 @@
 // phpcs:disable Generic.Files.LineLength
 
 // Mocks
-function content_html() {}
-function content_scope_push() { ob_start(); }
-function content_scope_pop() { $c = ob_get_contents(); ob_end_clean(); return $c; }
+function content_html()
+{
+}
+
+function content_scope_push()
+{
+    ob_start();
+}
+
+function content_scope_pop()
+{
+    $c = ob_get_contents();
+    ob_end_clean();
+    return $c;
+}
 
 // Extracted function from entrypoint.php (AFTER FIX)
 function content_scope_pop_markdown($input)
