@@ -1,22 +1,5 @@
 <?php
-
-/**
- * Single-file PHP framework entry point.
- *
- * This script serves as the core of the application, handling:
- * - Request parsing from STDIN (CGI-like behavior).
- * - Routing logic (exact, prefix, and parameterized).
- * - Response buffering and lifecycle management.
- * - Global state management ($_HEADERS, $ROUTE, etc.).
- *
- * Designed to run in a restricted environment (e.g., systemd socket activation)
- * where standard PHP SAPI features might be bypassed or customized.
- *
- * @package Core
- */
-
 // phpcs:disable PSR1.Files.SideEffects
-// phpcs:disable Generic.Files.LineLength
 
 // 🧹 Janitor: Replace magic strings with named constants for special Tailscale login values.
 const TS_LOGIN_TAGGED_DEVICES = "tagged-devices";
@@ -28,6 +11,13 @@ const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 // TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
+const HTTP_STATUS_OK = 200;
+const HTTP_STATUS_NOT_FOUND = 404;
+const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
+
+const CONTENT_TYPE_AUTO = "auto";
+const CONTENT_TYPE_TEXT_PLAIN = "text/plain; charset=utf-8";
+const CONTENT_TYPE_TEXT_HTML = "text/html";
 
 // ==================================== Ingestão da request que vem do stdin =============
 
@@ -40,20 +30,44 @@ const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
  * - Populates $_SERVER with HTTP_* variables.
  * - Handles special "Tailscale-User-Login" header security fix.
  */
-$_http_header = fgets(STDIN);
-$_http_header = trim($_http_header);
-$_http_header = explode(" ", $_http_header);
+function parse_request()
+{
+    $_http_header = fgets(STDIN);
+    $_http_header = trim($_http_header);
+    $_http_header = explode(" ", $_http_header);
 
-$_SERVER['REQUEST_METHOD'] = $_http_header[0];
-$_SERVER['REQUEST_URI'] = $_http_header[1];
-$_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
+    $_SERVER['REQUEST_METHOD'] = $_http_header[0];
+    $_SERVER['REQUEST_URI'] = $_http_header[1];
+    $_SERVER['QUERY_STRING'] = parse_url($_http_header[1], PHP_URL_QUERY);
 
-/**
- * Global buffer for raw HTTP headers.
- * Populated during the initial request parsing loop.
- * @var array<string>
- */
+    while (true) {
+        $_header = fgets(STDIN);
+        $_header = trim($_header);
+        if (strlen($_header) == 0) {
+            break;
+        }
+        $_header_name = explode(":", $_header)[0];
+        $_header_value = substr($_header, strlen($_header_name)+1);
+        $_header_value = trim($_header_value);
+
+        // fixes security issue where an attacker could
+        // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
+        if ($_header_name == "Tailscale-User-Login") {
+            define("TS_LOGIN", $_header_value);
+        }
+
+        $_header_name = strtoupper($_header_name);
+        $_header_name = str_replace("-", "_", $_header_name);
+
+        $_SERVER['HTTP_' . $_header_name] = $_header_value;
+    }
+}
+parse_request();
+
 $_HEADERS = array();
+
+// ==================================== Primitiva de header pra retorno =============
+$_HEADERS_KV = array();
 
 /**
  * Adds a raw HTTP header to the response buffer.
@@ -77,37 +91,6 @@ function header(string $header)
     global $_HEADERS;
     array_push($_HEADERS, $header);
 }
-
-while (true) {
-    $_header = fgets(STDIN);
-    $_header = trim($_header);
-    if (strlen($_header) == 0) {
-        break;
-    }
-    $_header_name = explode(":", $_header)[0];
-    $_header_value = substr($_header, strlen($_header_name) + 1);
-    $_header_value = trim($_header_value);
-
-    // fixes security issue where an attacker could
-    // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
-    if ($_header_name == "Tailscale-User-Login") {
-        define("TS_LOGIN", $_header_value);
-    }
-
-    $_header_name = strtoupper($_header_name);
-    $_header_name = str_replace("-", "_", $_header_name);
-
-    $_SERVER['HTTP_' . $_header_name] = $_header_value;
-}
-
-// ==================================== Primitiva de header pra retorno =============
-
-/**
- * Global key-value store for structured HTTP headers (e.g., Content-Type).
- * Used to prevent duplicates and allow easy modification before shutdown.
- * @var array<string, string>
- */
-$_HEADERS_KV = array();
 
 /**
  * Sets a Key-Value HTTP header.
@@ -146,18 +129,18 @@ function set_contenttype(string $content_type)
     set_header("Content-Type", $content_type);
 }
 
-set_contenttype("auto"); // default
+set_contenttype(CONTENT_TYPE_AUTO); // default
 
 /** Sets Content-Type to text/plain; charset=utf-8 */
 function content_text()
 {
-    set_contenttype("text/plain; charset=utf-8");
+    set_contenttype(CONTENT_TYPE_TEXT_PLAIN);
 }
 
 /** Sets Content-Type to text/html */
 function content_html()
 {
-    set_contenttype("text/html");
+    set_contenttype(CONTENT_TYPE_TEXT_HTML);
 }
 
 /**
@@ -174,26 +157,8 @@ function mime_from_buffer($buffer)
 
 
 // ==================================== Utilitários para roteamento =============
-
-/**
- * Global input data array.
- * Merges GET, POST, and route parameters into a single accessible structure.
- * @var array<string, mixed>
- */
 $INPUT_DATA = array_merge_recursive($_GET, $_POST);
-
-/**
- * Current route path being processed.
- * Modified by `use_route` as it traverses the URI segments.
- * @var string
- */
 $ROUTE = parse_url($_SERVER["REQUEST_URI"])["path"] ?? '';
-
-/**
- * Flag indicating if a route has been fully matched and handled.
- * Prevents subsequent routes from executing once a match is found.
- * @var bool
- */
 $IS_ROUTED = false;
 
 /**
@@ -235,7 +200,7 @@ function execphp(string $script)
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
         error_log("Path Traversal attempt blocked: " . $script);
-        http_response_code(404);
+        http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }
 
@@ -258,9 +223,7 @@ function use_route(string $base_route, string $handler_script)
 {
     global $ROUTE, $IS_ROUTED;
     if (str_starts_with($ROUTE, $base_route)) {
-        if ($IS_ROUTED) {
-            return;
-        }
+        if ($IS_ROUTED) return;
         $ROUTE = substr($ROUTE, strlen($base_route));
         execphp($handler_script);
     }
@@ -279,9 +242,7 @@ function exact_route(string $selected_route, string $handler_script)
 {
     global $ROUTE;
     if (strcmp($ROUTE, $selected_route) == 0) {
-        if (mark_routed()) {
-            return;
-        }
+        if (mark_routed()) return;
         execphp($handler_script);
     }
 }
@@ -289,19 +250,13 @@ function exact_route(string $selected_route, string $handler_script)
 /**
  * Registers a parameterized route.
  *
- * Supports dynamic segments in the route pattern (e.g., `/user/:id`).
- *
- * Logic:
- * 1. Splits both the route pattern and current URI into segments.
- * 2. Matches segments:
- *    - Static segments must match exactly.
- *    - Dynamic segments (`:param`) are extracted.
- * 3. If matched, merges extracted parameters into `$INPUT_DATA`.
- * 4. Marks the request as routed and executes the handler.
+ * Supports dynamic segments defined with a colon (e.g., "/users/:id/edit").
+ * - Parses the URI and extracts parameter values.
+ * - Merges parameters into the global $INPUT_DATA array.
+ * - Matches only if the structure (segment count and static parts) aligns.
  *
  * @param string $selected_route The route pattern (e.g., "/post/:id").
  * @param string $handler_script The script to handle the request.
- * @return void
  */
 function exact_with_route_param(string $selected_route, string $handler_script)
 {
@@ -332,9 +287,7 @@ function exact_with_route_param(string $selected_route, string $handler_script)
     } else {
         return;
     }
-    if (mark_routed()) {
-        return;
-    }
+    if (mark_routed()) return;
     $INPUT_DATA = array_merge_recursive($INPUT_DATA, $extra_params);
     execphp($handler_script);
 }
@@ -464,12 +417,7 @@ function content_scope_pop_markdown()
 
 /**
  * Injects SakuraCSS for instant, classless styling.
- *
- * Appends `<link>` tags to the output buffer, enabling:
- * - Clean, minimal defaults for HTML elements.
- * - Automatic dark mode support via `media="screen and (prefers-color-scheme: dark)"`.
- *
- * @return void
+ * Supports automatic dark mode detection.
  */
 function sakuracss_auto()
 {
@@ -480,16 +428,16 @@ function sakuracss_auto()
 }
 
 /**
- * Authenticates the user via Tailscale headers.
+ * authenticates the user via Tailscale headers.
  *
- * Populates global constants (`TS_NAME`, `TS_PROFILE_PIC`, `TS_HAS_LOGIN`).
+ * Populates global constants:
+ * - TS_NAME: User's display name.
+ * - TS_PROFILE_PIC: User's profile picture URL.
+ * - TS_HAS_LOGIN: Boolean indicating if a user is logged in.
  *
  * Fallback:
- * If no valid Tailscale headers are found (`HTTP_TAILSCALE_USER_*`), or if the
- * `TS_LOGIN` constant (defined during parse) is missing/invalid, it defaults
- * to the "Anonymous" profile.
- *
- * @return void
+ * If no valid Tailscale headers are found, or if the login is invalid,
+ * it defaults to an "Anonymous" profile.
  */
 function auth_tailscale()
 {
@@ -519,8 +467,6 @@ auth_tailscale();
  *
  * Used as a playful penalty for unauthorized access or invalid states.
  * Terminates execution immediately, triggering the shutdown handler.
- *
- * @return never Exits script execution.
  */
 function rickroll_user()
 {
@@ -547,20 +493,15 @@ content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda 
 // ==================================== Finalização =========================
 
 /**
- * Global Shutdown Handler.
+ * Shutdown Handler
  *
- * Registered via `register_shutdown_function`, this function constructs and sends
- * the final HTTP response after script execution ends.
+ * This function is registered via register_shutdown_function and is responsible
+ * for sending the final HTTP response.
  *
- * Workflow:
- * 1. Retrieves buffered output content (`content_scope_pop`).
- * 2. Sends HTTP status line (e.g., "HTTP/1.0 200 OK").
- * 3. Sends collected raw headers (`$_HEADERS`).
- * 4. Determines Content-Type (auto-detects via `finfo` if set to "auto").
- * 5. Sends Key-Value headers (`$_HEADERS_KV`).
- * 6. Flushes the response body.
- *
- * @return void
+ * - Sends the HTTP status line.
+ * - Sends buffered raw headers and Key-Value headers.
+ * - Auto-detects Content-Type if set to "auto" using the response body.
+ * - Outputs the buffered response body.
  */
 function shutdown()
 {
@@ -569,7 +510,7 @@ function shutdown()
     $data = content_scope_pop();
 
     if (!http_response_code()) {
-        http_response_code(200); // default response code
+        http_response_code(HTTP_STATUS_OK); // default response code
     }
     echo "HTTP/1.0 ";
     echo http_response_code();
@@ -579,7 +520,7 @@ function shutdown()
         echo "$header\r\n";
     }
 
-    if ($_HEADERS_KV['Content-Type'] == 'auto') {
+    if ($_HEADERS_KV['Content-Type'] == CONTENT_TYPE_AUTO) {
         set_contenttype(mime_from_buffer($data));
     }
 
@@ -602,7 +543,7 @@ chdir($SCRIPT_DIR);
 $ROUTES_SCRIPT = "$SCRIPT_DIR/routes.php";
 
 if (!file_exists($ROUTES_SCRIPT)) {
-    http_response_code(404);
+    http_response_code(HTTP_STATUS_NOT_FOUND);
 } else {
     include "$ROUTES_SCRIPT";
 }
