@@ -193,7 +193,7 @@ function mark_routed()
 function execphp(string $script)
 {
     global $INPUT_DATA, $ROUTE;
-    $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
+    $base_path = rtrim(getcwd(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR; // We've already chdir'd to SCRIPT_DIR
 
     // 🛡️ Sentinel: Prevent LFI / Path Traversal.
     // Ensure the requested script is within the allowed directory.
