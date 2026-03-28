@@ -194,6 +194,7 @@ function execphp(string $script)
 {
     global $INPUT_DATA, $ROUTE;
     $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
+    $base_path = rtrim($base_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
     // 🛡️ Sentinel: Prevent LFI / Path Traversal.
     // Ensure the requested script is within the allowed directory.
