@@ -198,7 +198,8 @@ function execphp(string $script)
     // 🛡️ Sentinel: Prevent LFI / Path Traversal.
     // Ensure the requested script is within the allowed directory.
     $real_script_path = realpath($script);
-    if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
+    $safe_base_path = rtrim($base_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    if ($real_script_path === false || !str_starts_with($real_script_path, $safe_base_path)) {
         error_log("Path Traversal attempt blocked: " . $script);
         http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
