@@ -194,11 +194,12 @@ function execphp(string $script)
 {
     global $INPUT_DATA, $ROUTE;
     $base_path = getcwd(); // We've already chdir'd to SCRIPT_DIR
+    $base_path_with_sep = rtrim($base_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
     // 🛡️ Sentinel: Prevent LFI / Path Traversal.
     // Ensure the requested script is within the allowed directory.
     $real_script_path = realpath($script);
-    if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
+    if ($real_script_path === false || !str_starts_with($real_script_path, $base_path_with_sep)) {
         error_log("Path Traversal attempt blocked: " . $script);
         http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
