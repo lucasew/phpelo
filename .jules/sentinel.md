@@ -19,8 +19,3 @@
 **Vulnerability:** The custom `header()` and `set_header()` functions lacked validation for CRLF characters, enabling HTTP Response Splitting. Additionally, improper initialization order of `$_HEADERS_KV` caused default security headers (CSP, Server) to be silently overwritten and lost.
 **Learning:** Custom implementations of core HTTP functionality require rigorous validation that standard libraries often provide implicitly. Also, execution order in procedural scripts can lead to silent failures of security controls (like CSP) if initialization logic resets state after configuration.
 **Prevention:** Always validate header inputs for control characters. Ensure global state initialization happens before any function calls that modify that state.
-
-## 2026-06-06 - LFI Bypass via Prefix Matching
-**Vulnerability:** The LFI prevention in `execphp` validated paths using `str_starts_with($real_script_path, $base_path)`. This allowed attackers to bypass the check by using a directory that shares a prefix with the intended base directory (e.g., if `$base_path` is `/var/www/app`, an attacker could access `/var/www/app-hacked/file.php` because it starts with `/var/www/app`).
-**Learning:** Prefix-based path validation is insufficient because it does not account for directory boundaries. A string like `/app-hacked` starts with `/app`.
-**Prevention:** Always append a `DIRECTORY_SEPARATOR` (e.g., `/`) to the base path when performing prefix-based path validation to ensure you are validating against a directory boundary, and explicitly allow exact matches if executing the directory itself is intended or safe.
