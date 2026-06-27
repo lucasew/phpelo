@@ -47,6 +47,11 @@ function parse_request()
             break;
         }
         $_header_name = explode(":", $_header)[0];
+
+        if (strpos($_header_name, '_') !== false) {
+            continue;
+        }
+
         $_header_value = substr($_header, strlen($_header_name)+1);
         $_header_value = trim($_header_value);
 
