@@ -15,3 +15,4 @@
 **Root Cause:** Organic growth led to a monolithic script structure where distinct responsibilities were interleaved.
 **Solution:** I extracted the request parsing logic into a `parse_request()` function (Extract Method) and replaced magic numbers/strings with named constants (`HTTP_STATUS_OK`, `CONTENT_TYPE_AUTO`, etc.). This adheres to SRP and improves readability.
 **Pattern:** Extract complex procedural logic into named functions to reduce global scope pollution and improve cohesion. Replace magic values with named constants for clarity.
+- 2026-06-29: Centralized error logging using report_error to comply with error reporting guidelines.
