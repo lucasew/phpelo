@@ -15,3 +15,9 @@
 **Root Cause:** Organic growth led to a monolithic script structure where distinct responsibilities were interleaved.
 **Solution:** I extracted the request parsing logic into a `parse_request()` function (Extract Method) and replaced magic numbers/strings with named constants (`HTTP_STATUS_OK`, `CONTENT_TYPE_AUTO`, etc.). This adheres to SRP and improves readability.
 **Pattern:** Extract complex procedural logic into named functions to reduce global scope pollution and improve cohesion. Replace magic values with named constants for clarity.
+
+## 2026-06-30 - Fix PSR-12 styling violations in entrypoint.php
+**Issue:** The `entrypoint.php` file contained minor PSR-12 styling violations, including missing spaces around operators and the use of inline control structures.
+**Root Cause:** The code was written without strict adherence to PSR-12 standards, leading to minor formatting inconsistencies that tripped up the `phpcs` linter in CI.
+**Solution:** I ran `phpcbf` to automatically fix these formatting issues, aligning `entrypoint.php` with PSR-12 standards without changing any underlying logic.
+**Pattern:** Automatically format code to adhere to community standards like PSR-12 to ensure consistency and prevent build failures due to linting errors.
