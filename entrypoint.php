@@ -19,6 +19,26 @@ const CONTENT_TYPE_AUTO = "auto";
 const CONTENT_TYPE_TEXT_PLAIN = "text/plain; charset=utf-8";
 const CONTENT_TYPE_TEXT_HTML = "text/html";
 
+/**
+ * Centralized error reporting function.
+ *
+ * All unexpected or unrecoverable errors MUST funnel through this function.
+ * This ensures consistency and makes it easier to integrate with error
+ * tracking systems like Sentry in the future.
+ *
+ * @param string $message The error message to report.
+ * @param \Throwable|null $e The optional exception associated with the error.
+ */
+function report_error(string $message, \Throwable $e = null)
+{
+    // Currently, we just use error_log, but this is the single integration
+    // point for any future advanced error reporting system.
+    if ($e) {
+        $message .= " | Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine();
+    }
+    error_log($message);
+}
+
 // ==================================== Ingestão da request que vem do stdin =============
 
 /**
@@ -85,7 +105,7 @@ $_HEADERS_KV = array();
 function header(string $header)
 {
     if (strpbrk($header, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in header(): $header");
+        report_error("Security Warning: Header injection attempt detected in header(): $header");
         return;
     }
     global $_HEADERS;
@@ -107,7 +127,7 @@ function header(string $header)
 function set_header(string $key, string $value)
 {
     if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
+        report_error("Security Warning: Header injection attempt detected in set_header(): $key: $value");
         return;
     }
     global $_HEADERS_KV;
@@ -199,7 +219,7 @@ function execphp(string $script)
     // Ensure the requested script is within the allowed directory.
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
-        error_log("Path Traversal attempt blocked: " . $script);
+        report_error("Path Traversal attempt blocked: " . $script);
         http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }

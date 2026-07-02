@@ -21,3 +21,9 @@
 **Root Cause:** The code was written without strict adherence to PSR-12 standards, leading to minor formatting inconsistencies that tripped up the `phpcs` linter in CI.
 **Solution:** I ran `phpcbf` to automatically fix these formatting issues, aligning `entrypoint.php` with PSR-12 standards without changing any underlying logic.
 **Pattern:** Automatically format code to adhere to community standards like PSR-12 to ensure consistency and prevent build failures due to linting errors.
+
+## 2026-07-02 - Centralize Error Reporting
+**Issue:** Error reporting was scattered using direct calls to `error_log`, making it difficult to integrate with centralized error tracking systems (like Sentry) in the future.
+**Root Cause:** Initial implementation prioritized simplicity over architectural scalability, violating the "Centralized Error Reporting" mandatory project guideline.
+**Solution:** I created a `report_error(string $message, \Throwable $e = null)` function and replaced all direct `error_log` calls. This creates a single funnel for all unexpected errors.
+**Pattern:** Always funnel unexpected/unrecoverable errors through a centralized reporting function rather than directly using raw `error_log` or `console.error` at the call site.
