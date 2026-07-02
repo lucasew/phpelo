@@ -66,6 +66,39 @@ parse_request();
 
 $_HEADERS = array();
 
+/**
+ * Centralized Error Reporting
+ *
+ * All unhandled exceptions and security warnings MUST funnel through this function.
+ * Outputs the error and context as a JSON string to error_log to facilitate structured logging.
+ *
+ * @param string $message The error message.
+ * @param array $context Optional contextual data (e.g., variables, state) to log.
+ * @param Throwable|null $exception The exception object, if applicable.
+ */
+function report_error(string $message, array $context = [], ?Throwable $exception = null)
+{
+    $log_data = [
+        'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
+        'message' => $message,
+        'context' => $context
+    ];
+
+    if ($exception) {
+        $log_data['exception'] = [
+            'class' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => $exception->getTraceAsString()
+        ];
+    } else {
+        $log_data['trace'] = (new Exception())->getTraceAsString();
+    }
+
+    error_log("CENTRALIZED_ERROR: " . json_encode($log_data));
+}
+
 // ==================================== Primitiva de header pra retorno =============
 $_HEADERS_KV = array();
 
@@ -85,7 +118,7 @@ $_HEADERS_KV = array();
 function header(string $header)
 {
     if (strpbrk($header, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in header(): $header");
+        report_error("Security Warning: Header injection attempt detected in header()", ['header' => $header]);
         return;
     }
     global $_HEADERS;
@@ -107,7 +140,7 @@ function header(string $header)
 function set_header(string $key, string $value)
 {
     if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
+        report_error("Security Warning: Header injection attempt detected in set_header()", ['key' => $key, 'value' => $value]);
         return;
     }
     global $_HEADERS_KV;
@@ -199,7 +232,7 @@ function execphp(string $script)
     // Ensure the requested script is within the allowed directory.
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
-        error_log("Path Traversal attempt blocked: " . $script);
+        report_error("Path Traversal attempt blocked", ['script' => $script]);
         http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }
