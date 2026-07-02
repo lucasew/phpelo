@@ -21,3 +21,4 @@
 **Root Cause:** The code was written without strict adherence to PSR-12 standards, leading to minor formatting inconsistencies that tripped up the `phpcs` linter in CI.
 **Solution:** I ran `phpcbf` to automatically fix these formatting issues, aligning `entrypoint.php` with PSR-12 standards without changing any underlying logic.
 **Pattern:** Automatically format code to adhere to community standards like PSR-12 to ensure consistency and prevent build failures due to linting errors.
+- 2026-07-02: Centralized error reporting via report_error() to funnel all unhandled/security errors through a single channel.

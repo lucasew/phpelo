@@ -70,6 +70,25 @@ $_HEADERS = array();
 $_HEADERS_KV = array();
 
 /**
+ * Centralized error reporting function.
+ * All unhandled exceptions and security warnings MUST funnel through this function.
+ *
+ * @param string $message The error message to report.
+ * @param array $context Additional context about the error.
+ */
+function report_error(string $message, array $context = [])
+{
+    // If Sentry were available, it would be called here:
+    // \Sentry\captureMessage($message, \Sentry\Severity::error(), ['extra' => $context]);
+
+    $log_message = $message;
+    if (!empty($context)) {
+        $log_message .= ' | Context: ' . json_encode($context);
+    }
+    error_log($log_message);
+}
+
+/**
  * Adds a raw HTTP header to the response buffer.
  *
  * This function serves as a secure replacement for PHP's native header() function,
@@ -85,7 +104,7 @@ $_HEADERS_KV = array();
 function header(string $header)
 {
     if (strpbrk($header, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in header(): $header");
+        report_error("Security Warning: Header injection attempt detected in header()", ["header" => $header]);
         return;
     }
     global $_HEADERS;
@@ -107,7 +126,7 @@ function header(string $header)
 function set_header(string $key, string $value)
 {
     if (strpbrk($key, "\r\n") !== false || strpbrk($value, "\r\n") !== false) {
-        error_log("Security Warning: Header injection attempt detected in set_header(): $key: $value");
+        report_error("Security Warning: Header injection attempt detected in set_header()", ["key" => $key, "value" => $value]);
         return;
     }
     global $_HEADERS_KV;
@@ -199,7 +218,7 @@ function execphp(string $script)
     // Ensure the requested script is within the allowed directory.
     $real_script_path = realpath($script);
     if ($real_script_path === false || !str_starts_with($real_script_path, $base_path)) {
-        error_log("Path Traversal attempt blocked: " . $script);
+        report_error("Path Traversal attempt blocked", ["script" => $script]);
         http_response_code(HTTP_STATUS_NOT_FOUND);
         return;
     }
