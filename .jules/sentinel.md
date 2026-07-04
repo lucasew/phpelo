@@ -19,3 +19,8 @@
 **Vulnerability:** The custom `header()` and `set_header()` functions lacked validation for CRLF characters, enabling HTTP Response Splitting. Additionally, improper initialization order of `$_HEADERS_KV` caused default security headers (CSP, Server) to be silently overwritten and lost.
 **Learning:** Custom implementations of core HTTP functionality require rigorous validation that standard libraries often provide implicitly. Also, execution order in procedural scripts can lead to silent failures of security controls (like CSP) if initialization logic resets state after configuration.
 **Prevention:** Always validate header inputs for control characters. Ensure global state initialization happens before any function calls that modify that state.
+
+## 2026-05-15 - CGI Mapping Collision in Custom HTTP Parser
+**Vulnerability:** The custom HTTP parser in `parse_request()` converted header dashes to underscores and capitalized them (e.g., `Tailscale-User-Name` to `HTTP_TAILSCALE_USER_NAME`), but failed to drop incoming headers that already contained underscores (e.g., `Tailscale_User_Name`). This allowed an attacker to bypass reverse-proxy spoofing protections by sending a malicious header with underscores, which the proxy would ignore but the backend would normalize to match trusted headers.
+**Learning:** Custom HTTP parsing logic is highly susceptible to CGI mapping collisions if it replicates PHP's native header normalization without implementing the corresponding security safeguards (dropping headers with underscores).
+**Prevention:** Always drop incoming HTTP headers that contain underscores before performing normalization, especially when relying on headers for authentication or authorization from a trusted reverse proxy.

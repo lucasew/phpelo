@@ -50,6 +50,12 @@ function parse_request()
         $_header_value = substr($_header, strlen($_header_name) + 1);
         $_header_value = trim($_header_value);
 
+        // 🛡️ Sentinel: Drop incoming headers with underscores to prevent
+        // CGI mapping collisions and reverse-proxy spoofing bypasses.
+        if (str_contains($_header_name, "_")) {
+            continue;
+        }
+
         // fixes security issue where an attacker could
         // pass arbitrary stuff into the TAILSCALE_USER_LOGIN header
         if ($_header_name == "Tailscale-User-Login") {
