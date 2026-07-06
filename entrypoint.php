@@ -375,17 +375,14 @@ function content_scope_pop_markdown()
             $exploded_label = explode("[", substr($lines, 0, $offset - 2));
             $label = $exploded_label[array_key_last($exploded_label)];
             $search_term = "[" . $label . "](" . $link . ")";
-            content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
-            $replace_term = content_scope_pop();
-            $lines = str_replace($search_term, $replace_term, $lines);
         } else {
+            $label = $link;
             $search_term = $link;
-            content_scope_push();
-            printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($link, ENT_QUOTES));
-            $replace_term = content_scope_pop();
-            $lines = str_replace($search_term, $replace_term, $lines);
         }
+        content_scope_push();
+        printf('<a href="%s">%s</a>', htmlspecialchars($link, ENT_QUOTES), htmlspecialchars($label, ENT_QUOTES));
+        $replace_term = content_scope_pop();
+        $lines = str_replace($search_term, $replace_term, $lines);
     }
 
     content_scope_push(); // output accumulator
