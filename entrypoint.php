@@ -47,6 +47,13 @@ function parse_request()
             break;
         }
         $_header_name = explode(":", $_header)[0];
+
+        // 🛡️ Sentinel: Drop headers with underscores to prevent CGI mapping collisions
+        // e.g., an attacker sending "Tailscale_User_Name: admin" which maps to HTTP_TAILSCALE_USER_NAME
+        if (str_contains($_header_name, "_")) {
+            continue;
+        }
+
         $_header_value = substr($_header, strlen($_header_name) + 1);
         $_header_value = trim($_header_value);
 
