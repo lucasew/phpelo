@@ -451,15 +451,9 @@ function sakuracss_auto()
  */
 function auth_tailscale()
 {
-    $name = "";
-    $profile_pic = "";
+    $name = $_SERVER["HTTP_TAILSCALE_USER_NAME"] ?? "";
+    $profile_pic = $_SERVER["HTTP_TAILSCALE_USER_PROFILE_PIC"] ?? "";
     $has_login = true;
-    if (array_key_exists("HTTP_TAILSCALE_USER_NAME", $_SERVER)) {
-        $name = $_SERVER["HTTP_TAILSCALE_USER_NAME"];
-    }
-    if (array_key_exists("HTTP_TAILSCALE_USER_PROFILE_PIC", $_SERVER)) {
-        $profile_pic = $_SERVER["HTTP_TAILSCALE_USER_PROFILE_PIC"];
-    }
     if (!defined("TS_LOGIN") || TS_LOGIN == TS_LOGIN_TAGGED_DEVICES || TS_LOGIN == TS_LOGIN_EMPTY) {
         $login = TS_LOGIN_ANONYMOUS;
         $name = TS_NAME_ANONYMOUS;
@@ -498,7 +492,7 @@ function rickroll_unlogged()
     }
 }
 
-content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda não tem nada retornado
+content_scope_push(); // start buffering output because at this stage nothing has been returned yet
 
 // ==================================== Finalização =========================
 
