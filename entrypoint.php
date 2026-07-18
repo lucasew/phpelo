@@ -124,6 +124,8 @@ function set_header(string $key, string $value)
 set_header("Server", "phpelo");
 set_header("Connection", "close");
 set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' https://unpkg.com; img-src *; script-src 'none'; object-src 'none'; base-uri 'none';");
+set_header("X-Frame-Options", "DENY");
+set_header("X-Content-Type-Options", "nosniff");
 
 // ==================================== Utilitários para content-type =============
 
