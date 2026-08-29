@@ -9,7 +9,6 @@ const TS_NAME_ANONYMOUS = "Anônimo";
 const TS_PROFILE_PIC_ANONYMOUS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 const RICKROLL_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
-// TODO: Add other commonly used HTTP status codes as constants (e.g., 200, 404, 500).
 const HTTP_STATUS_TEMPORARY_REDIRECT = 307;
 const HTTP_STATUS_OK = 200;
 const HTTP_STATUS_NOT_FOUND = 404;
