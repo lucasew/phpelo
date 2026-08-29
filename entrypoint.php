@@ -393,7 +393,6 @@ function content_scope_pop_markdown()
     }
 
     content_scope_push(); // output accumulator
-    // $replaces = array()
 
     $lines = explode("\n", $lines);
 
@@ -498,7 +497,7 @@ function rickroll_unlogged()
     }
 }
 
-content_scope_push(); // saporra appenda os echo num buffer pq nessa fase ainda não tem nada retornado
+content_scope_push(); // Appends echo output to a buffer because the response body isn't ready to be sent yet
 
 // ==================================== Finalização =========================
 
